@@ -1,0 +1,1221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jayden Chia · IT & Security</title>
+<meta name="description" content="Jayden Chia, IT Engineer at Swyftx in Melbourne. IT, security and AI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300..700&family=Syne:wght@700..800&family=Michroma&family=Krona+One&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!-- same Lenis build as index.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js" integrity="sha384-eD5ubmuCcvTdCADWuSchJYE7wcj2nzNr0itbrh6w/KJyBiltSZ8w3VFRBSWu5YQ8" crossorigin="anonymous"></script>
+<style>
+  /* One slow camera ride through warm dust: a clay object at each stop, words only in the corners. */
+  :root{--bg:#141a1f;--ink:#ece6de;--muted:#a9a39b;--accent:#d98c6a;--ok:#6fcf8e;--mono:'IBM Plex Mono',monospace;--g:clamp(16px,4vw,56px);--b:24px}
+  html.lenis,html.lenis body{height:auto}
+  .lenis.lenis-smooth{scroll-behavior:auto!important}
+  html{scrollbar-color:var(--accent) var(--bg);scrollbar-width:thin}
+  ::selection{background:var(--accent);color:var(--bg)}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:12px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:clip}
+  a,button{color:inherit;font:inherit}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:2px}
+  #gl{position:fixed;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 1.2s ease}
+  #gl.on{opacity:1}
+
+  /* Scroll length: one tall stop per section; the camera reads its position from the page. */
+  .sec{height:140vh;height:140svh}
+  .sec:last-child{height:100vh;height:100svh}
+
+  .hud{position:fixed;z-index:3;margin:0}
+  header .hud{z-index:5}
+  .tl{top:var(--b);left:var(--g)}
+  .tl p{margin:0}
+  .name{font-weight:500}
+  .status{display:flex;align-items:center;gap:8px;color:var(--muted)}
+  .status i{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+  .tr{top:calc(var(--b) - 8px);right:calc(var(--g) - 10px)}
+  .tr{display:flex;align-items:center;gap:4px}
+  .menu-btn,.sound-btn{background:none;border:0;padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:10px}
+  .sound-btn{color:var(--muted)}
+  .sound-btn[aria-pressed=true]{color:var(--ink)}
+  .sound-btn b{display:flex;align-items:flex-end;gap:2px;height:11px}
+  .sound-btn i{width:2px;height:3px;background:currentColor;border-radius:1px;transition:height .3s ease}
+  .sound-btn[aria-pressed=true] i{animation:eq 1.1s ease-in-out infinite alternate}
+  .sound-btn i:nth-child(2){animation-delay:-.4s!important}.sound-btn i:nth-child(3){animation-delay:-.8s!important}.sound-btn i:nth-child(4){animation-delay:-.2s!important}
+  @keyframes eq{from{height:3px}to{height:11px}}
+  .menu-btn b{display:inline-grid;gap:4px;width:16px}
+  .menu-btn b::before,.menu-btn b::after{content:'';height:1.5px;background:currentColor;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  .menu-btn[aria-expanded=true] b::before{transform:translateY(2.75px) rotate(45deg)}
+  .menu-btn[aria-expanded=true] b::after{transform:translateY(-2.75px) rotate(-45deg)}
+  .br{right:var(--g);bottom:var(--b);text-align:right;color:var(--muted)}
+  .br p{margin:0}
+  .br .langs{color:var(--ink)}
+  .br .scroll{margin-top:10px;color:var(--ink);display:flex;justify-content:flex-end;gap:16px}
+  .br .scroll span{font-variant-numeric:tabular-nums}
+
+  /* Bottom left: one caption per section, shown while the camera is at its stop. */
+  .cap{position:fixed;z-index:3;left:var(--g);bottom:var(--b);max-width:min(46ch,52vw);opacity:0;transform:translateY(14px);filter:blur(8px);pointer-events:none;
+    transition:opacity .6s ease,transform .8s cubic-bezier(.16,1,.3,1),filter .6s ease}
+  .sec.on .cap{opacity:1;transform:none;filter:none;pointer-events:auto}
+  /* Titles in Unbounded: wide, geometric, space-age, with just-rounded corners that sit with the clay.
+     Each stop tints its title, accent and shadow from its own sky. */
+  #home{--title:#f6dcc6;--hi:#e39a72;--shade:46,20,12}
+  #about{--title:#cfeae4;--hi:#7cc4b8;--shade:8,26,32}
+  #projects{--title:#e3d9f6;--hi:#b49be6;--shade:22,14,40}
+  #experience{--title:#f4e0b6;--hi:#e0a956;--shade:44,30,12}
+  #contact{--title:#e4e8ef;--hi:#aab8cc;--shade:14,18,26}
+  /* Display font candidates (F key or ?font=), each tuned for weight, tracking, size and leading. */
+  :root{--df:Unbounded;--dw:600;--dls:-.035em;--dsz:1;--dlh:.98}
+  [data-font=syne]{--df:Syne;--dw:800;--dls:-.02em;--dsz:1.14;--dlh:.9}
+  [data-font=michroma]{--df:Michroma;--dw:400;--dls:-.01em;--dsz:.8;--dlh:1.08}
+  [data-font=krona]{--df:'Krona One';--dw:400;--dls:-.02em;--dsz:.8;--dlh:1.06}
+  .big{position:relative;margin:0 0 18px;font-family:var(--df),system-ui,sans-serif;font-weight:var(--dw);letter-spacing:var(--dls);line-height:var(--dlh);
+    font-size:calc(clamp(38px,5.4vw,84px) * var(--dsz));max-width:12ch;text-wrap:balance;color:var(--title);text-shadow:0 2px 2px rgba(var(--shade),.5),0 14px 36px rgba(var(--shade),.7)}
+  .big .amp{color:var(--hi)}
+  /* Letters fly in from deep space one by one, out of focus, as if the camera passes through them, then settle sharp. */
+  .big .w{display:inline-block;white-space:nowrap}
+  .big .ch{display:inline-block;opacity:0;transform:translate3d(0,.3em,0) scale(1.8);filter:blur(12px);
+    transition:opacity .6s ease,transform 1.3s cubic-bezier(.16,1,.3,1),filter 1s cubic-bezier(.16,1,.3,1);transition-delay:calc(var(--i) * 45ms)}
+  .sec.on .big .ch{opacity:1;transform:none;filter:none}
+  .sec:not(.on) .big .ch{transition-duration:.3s;transition-delay:0s}
+  /* Then, every few seconds, a thin glint of starlight sweeps across the settled letters. */
+  .big::after{content:attr(data-text);position:absolute;inset:0;color:#fffaf0;text-shadow:none;pointer-events:none;opacity:0;
+    -webkit-mask:linear-gradient(105deg,transparent 42%,#000 50%,transparent 58%) 85% 0/300% 100% no-repeat;mask:linear-gradient(105deg,transparent 42%,#000 50%,transparent 58%) 85% 0/300% 100% no-repeat}
+  .sec.on .big::after{opacity:.75;animation:glint 7s 1.8s cubic-bezier(.45,0,.25,1) infinite}
+  @keyframes glint{0%{-webkit-mask-position:85% 0;mask-position:85% 0}26%,100%{-webkit-mask-position:15% 0;mask-position:15% 0}}
+  #fontname{position:fixed;left:50%;top:var(--b);z-index:6;translate:-50% 0;margin:0;padding:6px 14px;border:1px solid rgba(236,230,222,.22);border-radius:999px;
+    background:rgba(20,26,31,.72);font-size:12px;opacity:0;transition:opacity .3s ease;pointer-events:none}
+  #fontname.show{opacity:1}
+  .line{margin:0;max-width:44ch;font-size:14px;line-height:1.65;color:var(--ink);text-shadow:0 1px 12px rgba(var(--shade),.75)}
+  .tags{display:flex;gap:18px;margin:14px 0 0;padding:0;list-style:none;color:var(--hi);font-weight:500;letter-spacing:.02em}
+  .links{display:flex;flex-wrap:wrap;gap:6px 18px;margin:12px 0 0;padding:0;list-style:none}
+  .links a{color:var(--hi,var(--accent));text-decoration:none;font-weight:500}
+  .links a:hover{text-decoration:underline;text-underline-offset:4px}
+
+  /* Menu: a plain full-screen panel, the five stops and the contact links. */
+  .menu{position:fixed;inset:0;z-index:4;background:color-mix(in srgb,var(--bg) 97%,transparent);display:flex;flex-direction:column;justify-content:center;padding:0 var(--g);
+    opacity:0;visibility:hidden;transition:opacity .4s ease,visibility 0s linear .4s}
+  .menu.open{opacity:1;visibility:visible;transition:opacity .4s ease}
+  .menu ol{margin:0;padding:0;list-style:none}
+  .menu ol a{display:inline-block;font-family:Unbounded,system-ui,sans-serif;font-weight:600;letter-spacing:-.035em;line-height:1.05;font-size:clamp(34px,6vw,80px);text-decoration:none;padding:4px 0;transition:color .25s,transform .4s cubic-bezier(.2,.8,.2,1)}
+  .menu ol a:hover,.menu ol a:focus-visible{color:var(--accent);transform:translateX(10px)}
+  .menu .links{margin-top:40px;font-size:13px}
+
+  .no-gl #gl{display:none}
+
+  /* Intro: the corners and caption wait until the blueprint has become clay. */
+  .hud{transition:opacity .9s ease,transform .9s cubic-bezier(.16,1,.3,1),filter .9s ease}
+  .intro .hud,.intro .sec.on .cap{opacity:0;transform:translateY(10px);filter:blur(6px)}
+  /* The opening blueprint: a plan of the solar system, then labels on the exploded Saturn. */
+  #plan{position:fixed;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;fill:none;stroke:#d6e6ff;stroke-width:1;stroke-opacity:.85;
+    filter:drop-shadow(0 0 1.5px rgba(150,195,255,.6))}
+  #plan *{vector-effect:non-scaling-stroke}
+  #plan .orb{stroke-opacity:.5}
+  #plan .orb.far{stroke-dasharray:6 4!important;stroke-dashoffset:0!important}
+  #plan .orb.sat,#plan .sat{stroke-opacity:1;stroke-width:1.3}
+  #plan .cl{stroke-dasharray:22 4 2 4;stroke-opacity:.4}
+  #plan .dash{stroke-opacity:.8}
+  #plan .thin{stroke-opacity:.45}
+  #plan .fillc{fill:#d6e6ff;stroke:none}
+  #plan marker path{stroke:#d6e6ff}
+  #plan text{font-family:var(--mono);font-size:9px;letter-spacing:.08em;fill:#d6e6ff;fill-opacity:.75;stroke:none}
+  #plan .mid{text-anchor:middle}
+  #plan .lab{font-size:13px;letter-spacing:.12em;font-weight:500;fill-opacity:1}
+  #plan .lab.sm{font-size:10px}
+  #plan .lab .sub{font-size:10px;fill-opacity:.7}
+  #parts span{position:fixed;left:0;top:0;z-index:2;pointer-events:none;opacity:0;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#d6e6ff;white-space:nowrap;padding-left:30px;margin-top:-.75em;
+    background:linear-gradient(#d6e6ff,#d6e6ff) 4px 50%/20px 1px no-repeat;text-shadow:0 0 3px rgba(150,195,255,.6)}
+  #parts span.l{padding:0 26px 0 0;background-position:calc(100% - 4px) 50%;translate:-100% 0}
+
+  @media (max-width:700px){
+    .br{left:var(--g);text-align:left}
+    .br .scroll{justify-content:space-between}
+    .cap{bottom:calc(var(--b) + 96px);max-width:none;right:var(--g)}
+    .big{font-size:clamp(32px,9.6vw,48px)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .cap{transition:opacity .3s ease;transform:none;filter:none}
+    .big .ch{opacity:1;transform:none;filter:none;transition:none}
+    .big::after{display:none}
+    #gl{transition:opacity .3s ease}
+  }
+</style>
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<p id="fontname" aria-live="polite"></p>
+<svg id="plan" aria-hidden="true"></svg>
+<div id="parts" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+
+<header>
+  <div class="hud tl">
+    <p class="name">Jayden Chia</p>
+    <p class="status"><i aria-hidden="true"></i>Open to IT roles</p>
+  </div>
+  <div class="hud tr">
+    <button class="sound-btn" type="button" aria-pressed="false">Sound <b aria-hidden="true"><i></i><i></i><i></i><i></i></b></button>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu">Menu <b aria-hidden="true"></b></button>
+  </div>
+</header>
+
+<nav class="menu" id="menu" aria-label="Sections">
+  <ol>
+    <li><a href="#home" data-go="0">Home</a></li>
+    <li><a href="#about" data-go="1">About</a></li>
+    <li><a href="#projects" data-go="2">Projects</a></li>
+    <li><a href="#experience" data-go="3">Experience</a></li>
+    <li><a href="#contact" data-go="4">Contact</a></li>
+  </ol>
+  <ul class="links">
+    <li><a href="mailto:zhengchean@gmail.com">zhengchean@gmail.com</a></li>
+    <li><a href="https://www.linkedin.com/in/jayden-chia" target="_blank" rel="noopener">LinkedIn</a></li>
+    <li><a href="https://github.com/zchean1216" target="_blank" rel="noopener">GitHub</a></li>
+    <li><a href="files/Jayden_Chia_Resume.pdf" download>Resume</a></li>
+  </ul>
+</nav>
+
+<main>
+  <section class="sec" id="home" aria-label="Home">
+    <div class="cap">
+      <h1 class="big">IT <span class="amp">&amp;</span> Security</h1>
+      <p class="line" data-decode>IT Engineer at Swyftx, Melbourne</p>
+      <ul class="tags" aria-label="Focus"><li>IT</li><li>Security</li><li>AI</li></ul>
+    </div>
+  </section>
+  <section class="sec" id="about" aria-label="About">
+    <div class="cap">
+      <h2 class="big">About</h2>
+      <p class="line" data-decode>Grew up in Malaysia, moved to Melbourne on my own to study IT. From washing dishes to looking after a whole office's tech.</p>
+    </div>
+  </section>
+  <section class="sec" id="projects" aria-label="Projects">
+    <div class="cap">
+      <h2 class="big">Projects</h2>
+      <p class="line" data-decode>A day-one office network, a threat-intel workflow, doors and cameras, phishing training, and a company-wide move after an acquisition.</p>
+    </div>
+  </section>
+  <section class="sec" id="experience" aria-label="Experience">
+    <div class="cap">
+      <h2 class="big">Experience</h2>
+      <p class="line" data-decode>Kitchens, retail floors and Monash IT support, then solo IT at Caleb &amp; Brown. Now IT Engineer at Swyftx.</p>
+    </div>
+  </section>
+  <section class="sec" id="contact" aria-label="Contact">
+    <div class="cap">
+      <h2 class="big">Contact</h2>
+      <p class="line" data-decode>Hiring for IT support, systems or security? Let's talk.</p>
+      <ul class="links">
+        <li><a href="mailto:zhengchean@gmail.com">Email</a></li>
+        <li><a href="https://www.linkedin.com/in/jayden-chia" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://github.com/zchean1216" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="files/Jayden_Chia_Resume.pdf" download>Resume</a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="hud br">
+  <p class="langs" lang="und">EN · 中文 · BM</p>
+  <p>Open to relocation and visa sponsorship, worldwide</p>
+  <p class="scroll"><span>Scroll to explore</span><span><span id="count">01</span>/05</span></p>
+</footer>
+
+<script type="module">
+import * as THREE from 'three';
+import { keyView, saturn, halo, tilt, tileU, blueU, tileLines, tileSparks, ringLines, RING_PARTS, TILES, pebbles, rings, planet, moon, satellite, rockA, rockB, rockC, rocks, world, atmosphere, stoneField, signals, rocket, station, wheel, dockLight, patch, setDissolve, addLights } from './proto-clay-objects.js';
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const QS = new URLSearchParams(location.search);   // prototype switches: ?ring=lite, ?font=, ?bloom=0, ?perf, ?streaks=0
+const coarse = matchMedia('(pointer: coarse)').matches;
+const root = document.documentElement, canvas = document.getElementById('gl');
+const secs = [...document.querySelectorAll('.sec')], countEl = document.getElementById('count');
+const ss = (a, b, x) => { const t = Math.min(Math.max((x - a) / (b - a), 0), 1); return t * t * (3 - 2 * t); };
+
+// ================= Captions, menu, scroll =================
+const GLYPHS = '/\\|-_<>[]01#*';
+function decode(el) {                                    // characters scramble, then settle left to right
+  if (!el || reduce) return;
+  const final = el.dataset.final || (el.dataset.final = el.textContent);
+  clearInterval(el._id);
+  let n = 0;
+  el._id = setInterval(() => {
+    n += 1.2;
+    el.textContent = [...final].map((c, i) => c === ' ' || i < n ? c : GLYPHS[(Math.random() * GLYPHS.length) | 0]).join('');
+    if (n >= final.length) { el.textContent = final; clearInterval(el._id); }
+  }, 24);
+}
+// Titles: each letter in its own span so they can fly in one by one; screen readers get the plain title.
+document.querySelectorAll('.big').forEach(h => {
+  const text = h.textContent.replace(/\s+/g, ' ').trim();
+  let i = 0;
+  const wrap = (str, cls = '') => str.split(' ').filter(Boolean).map(w =>
+    `<span class="w ${cls}" aria-hidden="true">${[...w].map(c => `<span class="ch" style="--i:${i++}">${c === '&' ? '&amp;' : c}</span>`).join('')}</span>`).join(' ');
+  h.innerHTML = [...h.childNodes].map(n => wrap(n.textContent, n.nodeType === 1 ? n.className : '')).filter(Boolean).join(' ');
+  h.setAttribute('aria-label', text); h.dataset.text = text;
+});
+// Prototype only: press F (or ?font=) to compare display fonts.
+const FONTS = [['unbounded', 'Unbounded'], ['syne', 'Syne'], ['michroma', 'Michroma'], ['krona', 'Krona One']], fontTag = document.getElementById('fontname');
+let fi = Math.max(0, FONTS.findIndex(f => f[0] === new URLSearchParams(location.search).get('font')));
+const setFont = show => {
+  root.dataset.font = FONTS[fi][0];
+  if (!show) return;
+  fontTag.textContent = `Font: ${FONTS[fi][1]}`; fontTag.classList.add('show');
+  clearTimeout(fontTag._t); fontTag._t = setTimeout(() => fontTag.classList.remove('show'), 1600);
+};
+setFont(false);
+addEventListener('keydown', e => { if (e.key === 'f' && !e.metaKey && !e.ctrlKey) { fi = (fi + 1) % FONTS.length; setFont(true); } });
+
+let active = -1;
+function setActive(i) {
+  if (i === active) return;
+  secs.forEach((s, k) => { s.classList.toggle('on', k === i); s.querySelector('.cap').inert = k !== i; });
+  countEl.textContent = String(i + 1).padStart(2, '0');
+  decode(secs[i].querySelector('[data-decode]'));
+  active = i;
+}
+
+const maxScroll = () => document.documentElement.scrollHeight - innerHeight;
+const lenis = !reduce && window.Lenis ? new window.Lenis({ lerp: .085 }) : null;
+const goTo = i => { const y = i / 4 * maxScroll(); lenis ? lenis.scrollTo(y, { duration: 1.6 }) : scrollTo(0, y); };
+
+const btn = document.querySelector('.menu-btn'), menu = document.getElementById('menu');
+function setMenu(open) {
+  btn.setAttribute('aria-expanded', open); menu.classList.toggle('open', open);
+  open ? lenis?.stop() : lenis?.start();
+  if (open) menu.querySelector('a').focus();
+}
+btn.addEventListener('click', () => setMenu(btn.getAttribute('aria-expanded') !== 'true'));
+addEventListener('keydown', e => { if (e.key === 'Escape' && menu.classList.contains('open')) { setMenu(false); btn.focus(); } });
+menu.querySelectorAll('[data-go]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); setMenu(false); btn.focus(); goTo(+a.dataset.go); }));
+
+// ================= WebGL =================
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas, antialias: !coarse, powerPreference: 'high-performance' }); }
+catch (e) { root.classList.add('no-gl'); }
+
+if (!renderer) {
+  // No WebGL: the captions still follow the scroll over the plain charcoal page.
+  const tick = () => { setActive(Math.min(4, Math.round(scrollY / maxScroll() * 4))); };
+  addEventListener('scroll', tick, { passive: true }); tick();
+} else {
+  renderer.setPixelRatio(Math.min(devicePixelRatio, coarse ? 1.5 : 2));
+  renderer.autoClear = false;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+
+  // ---------- The stops: one object each, scattered through space, each met from a different angle ----------
+  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(35, 1, .1, 260);
+  const lights = addLights(scene);
+  const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+
+  const astroTex = new THREE.TextureLoader().load('images/space/clay/astronaut-2.webp');
+  astroTex.colorSpace = THREE.SRGBColorSpace; astroTex.anisotropy = 8;
+  // The one painted object: graded a touch darker so it sits with the lit clay around it, and always facing us.
+  const astronaut = new THREE.Mesh(new THREE.PlaneGeometry(3.2 * 1054 / 1662, 3.2),
+    patch(new THREE.MeshBasicMaterial({ map: astroTex, transparent: true, depthWrite: false, color: new THREE.Color(.86, .85, .84), toneMapped: false }), { paint: true }));
+  const astro = new THREE.Group(); astro.add(astronaut);
+
+  rockA.position.set(-1.4, .45, 0); rockA.scale.multiplyScalar(.6);
+  rockB.position.set(1.5, -.45, 1.2); rockB.scale.multiplyScalar(.46);
+  rockC.position.set(.35, 1.35, -2.2); rockC.scale.multiplyScalar(.5);
+
+  const S = [V3(0, 0, 0), V3(0, 0, -36), V3(4, -30, -46), V3(-26, -34, -58), V3(-34, -30, -96)];
+  const stops = [saturn, astro, satellite, rocks, moon].map((obj, i) => {
+    const stop = new THREE.Group(); stop.position.copy(S[i]); stop.add(obj); scene.add(stop);
+    return { stop, obj };
+  });
+  // Width and height of each object at scale 1, to fit it to the screen.
+  const SIZE = [[4.7, 3.2, .95], [2.05, 3.2, 1], [4.4, 2.4, .72], [4.2, 3, 1], [2, 2, 1.25]];
+
+  // Where the camera rests at each stop, and the path between stops. Each move has its own character.
+  const VIEW = [V3(0, .6, 8.6), V3(0, 0, 8.4), V3(0, 5.6, 5.8), V3(7.6, 1.4, 4.2), V3(0, .8, 8.6)].map((v, i) => v.add(S[i]));
+  const MOVES = [
+    { via: [V3(2.7, .3, 1.6), V3(1.4, .2, -7)], roll: .28 },               // dive: skim past Saturn, through the edge of its rings
+    { via: [V3(0, -3.5, -30), V3(3, -17, -40)], roll: 0 },                  // crane down: the astronaut rises out, the satellite comes up from below
+    { via: [V3(7, -22, -34), V3(-10, -28, -44)], roll: -.22 },              // pull back and swing wide to meet the rocks side-on
+    { via: [V3(-24, -22, -66), V3(-34, -20, -86)], roll: .16 },             // arc up over the top, then settle onto the moon
+  ];
+  const paths = MOVES.map((m, i) => new THREE.CatmullRomCurve3([VIEW[i], ...m.via, VIEW[i + 1]], false, 'centripetal'));
+
+  // ---------- Intro: a blueprint of the solar system; Saturn is picked, we dive in, it lies exploded, then assembles ----------
+  // The plan is a flat SVG drawn over the canvas, with Saturn's dot exactly where the 3D Saturn sits on screen.
+  const plan = document.getElementById('plan'), parts = [...document.querySelectorAll('#parts span')];
+  const TAU = Math.PI * 2, NS = 'http://www.w3.org/2000/svg', planEls = [];
+  let zoomG, selG, planKey = '';
+  const svg = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent?.append(e); return e; };
+  const PLANETS = [['Mercury', .16, 2.2, 2], ['Venus', .25, 3.1, 3], ['Earth', .34, 4.4, 3], ['Mars', .45, 1.2, 2.5], ['Jupiter', .68, 3.6, 6], ['Saturn', 1, -.5, 0], ['Uranus', 1.3, 2.6, 4], ['Neptune', 1.58, 1.75, 4]];
+  // iconR: Saturn's drawn radius (px). DIVE: how far back the camera starts so the real Saturn is exactly that size.
+  let iconR = 5, planR = 100, DIVE = 20, sx0 = 0, sy0 = 0, satIcon, restG, sheetG;
+  const add = (tag, attrs, parent, t0, t1, kind = 'pop') => { const e = svg(tag, attrs, parent); if (t0 !== undefined) planEls.push({ e, t0, t1, kind }); return e; };
+  function buildPlan(sx, sy) {
+    planKey = `${W}x${H}`; planEls.length = 0; sx0 = sx; sy0 = sy;
+    plan.setAttribute('viewBox', `0 0 ${W} ${H}`); plan.replaceChildren();
+    const phone = W / H < .9, m = phone ? 10 : 18, f = phone ? .85 : 1;
+    const px1 = H / 2 / Math.tan(THREE.MathUtils.degToRad(17.5));
+    planR = saturn.scale.x / VIEW[0].distanceTo(S[0]) * px1;
+    iconR = Math.min(6, Math.max(3.5, planR / 30)); DIVE = planR / iconR;
+    // Measure how the real ring sits on screen (angle, width, height) so the drawn symbol matches it.
+    saturn.updateMatrixWorld(true);
+    const c0 = off.copy(S[0]).project(camera).clone(), nowR = saturn.scale.x / camera.position.distanceTo(S[0]) * px1;
+    let big = 0, small = 1e9, ang = 0;
+    for (let a = 0; a < 64; a++) {
+      const v = V3(Math.cos(a / 64 * TAU) * 2.35, 0, Math.sin(a / 64 * TAU) * 2.35).applyMatrix4(tilt.matrixWorld).project(camera);
+      const dx = (v.x - c0.x) / 2 * W, dy = -(v.y - c0.y) / 2 * H, L = Math.hypot(dx, dy);
+      if (L > big) { big = L; ang = Math.atan2(dy, dx) * 180 / Math.PI; }
+      small = Math.min(small, L);
+    }
+    const rr = iconR / nowR, ringRx = big * rr, ringRy = small * rr;
+    svg('defs', {}, plan).innerHTML = '<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1.5L9 5L0 8.5" fill="none"/></marker>';
+
+    zoomG = svg('g', {}, plan); restG = svg('g', {}, zoomG);
+    const rx = Math.min(W * .36, H * .62), ry = rx * .42, sa = PLANETS[5][2];
+    const cx = sx - rx * Math.cos(sa), cy = sy - ry * Math.sin(sa);
+    // centre lines through the sun, dash-dot like a real drawing
+    add('line', { x1: cx - rx * 1.9, y1: cy, x2: cx + rx * 1.9, y2: cy, class: 'cl' }, restG, .1, .5);
+    add('line', { x1: cx, y1: cy - ry * 2.2, x2: cx, y2: cy + ry * 2.2, class: 'cl' }, restG, .15, .55);
+    const sun = add('g', {}, restG, .2, .5);
+    svg('circle', { cx, cy, r: 7 }, sun); svg('circle', { cx, cy, r: 2.2, class: 'fillc' }, sun);
+    for (let k = 0; k < 12; k++) { const a = k / 12 * TAU; svg('line', { x1: cx + Math.cos(a) * 10, y1: cy + Math.sin(a) * 10, x2: cx + Math.cos(a) * (k % 3 ? 13 : 17), y2: cy + Math.sin(a) * (k % 3 ? 13 : 17) }, sun); }
+    add('text', { x: cx + 12, y: cy + 24, class: 'tiny' }, restG, .4, .7).textContent = 'SOL';
+    PLANETS.forEach(([name, fr, a, r], i) => {
+      const sat = i === 5, px = cx + rx * fr * Math.cos(a), py = cy + ry * fr * Math.sin(a), t0 = .3 + i * .11;
+      add('ellipse', { cx, cy, rx: rx * fr, ry: ry * fr, pathLength: 1, 'stroke-dasharray': 1, class: sat ? 'orb sat' : i > 5 ? 'orb far' : 'orb' }, restG, t0, t0 + .9, 'draw');
+      if (sat) return;
+      const g = add('g', {}, restG, t0 + .7, t0 + 1);
+      svg('circle', { cx: px, cy: py, r }, g); svg('circle', { cx: px, cy: py, r: .9, class: 'fillc' }, g);
+      if (!phone || i > 3) svg('text', { x: px + r + 5, y: py - r - 2, class: 'tiny' }, g).textContent = name.toUpperCase();   // inner names crowd on phones
+    });
+    // Saturn: drawn at exactly the size and angle the real one will appear when the camera starts its dive
+    satIcon = add('g', { class: 'sat' }, zoomG, 1.2, 1.5);
+    svg('circle', { cx: sx, cy: sy, r: iconR }, satIcon);
+    for (const k of [1.32 / 2.35, 1]) svg('ellipse', { cx: sx, cy: sy, rx: ringRx * k, ry: ringRy * k, transform: `rotate(${ang} ${sx} ${sy})` }, satIcon);
+    // radius dimension from the sun to Saturn
+    const dx = sx - cx, dy = sy - cy, dl = Math.hypot(dx, dy), ux = dx / dl, uy = dy / dl, nx = -uy * 14, ny = ux * 14;
+    add('line', { x1: cx + nx, y1: cy + ny, x2: sx + nx - ux * (ringRx + 4), y2: sy + ny - uy * (ringRx + 4), 'marker-start': 'url(#ah)', 'marker-end': 'url(#ah)', pathLength: 1, 'stroke-dasharray': 1 }, restG, 1.3, 1.75, 'draw');
+    for (const [x, y] of [[cx, cy], [sx - ux * (ringRx + 4), sy - uy * (ringRx + 4)]]) add('line', { x1: x + nx * .3, y1: y + ny * .3, x2: x + nx * 1.3, y2: y + ny * 1.3 }, restG, 1.3, 1.5);
+    const mx = (cx + sx) / 2 + nx * 1.6, my = (cy + sy) / 2 + ny * 1.6, rot = Math.atan2(dy, dx) * 180 / Math.PI;
+    add('text', { x: mx, y: my, class: 'tiny mid', transform: `rotate(${rot} ${mx} ${my})` }, restG, 1.6, 1.85).textContent = 'R 9.54 AU';
+    // detail circle around Saturn: "see detail A", the dive goes into it
+    const dr = ringRx + 9;
+    add('circle', { cx: sx, cy: sy, r: dr, class: 'dash', pathLength: 1, 'stroke-dasharray': 1 }, zoomG, 1.6, 2, 'draw');
+    const tag = add('g', {}, zoomG, 1.9, 2.05), tx = sx + dr * .72, ty = sy + dr * .72;
+    svg('circle', { cx: tx + 7, cy: ty + 7, r: 7 }, tag); svg('text', { x: tx + 7, y: ty + 10.5, class: 'tiny mid' }, tag).textContent = 'A';
+
+    // Callout: balloon, leader with an arrowhead, title
+    selG = svg('g', { class: 'sel' }, zoomG);
+    const lx = sx - Math.min(170, W * .34), ly = sy - 92 * f;
+    add('path', { d: `M${lx + 14} ${ly + 22}H${sx - dr * .9}L${sx - dr * .72} ${sy - dr * .72}`, 'marker-end': 'url(#ah)', pathLength: 1, 'stroke-dasharray': 1 }, selG, 1.95, 2.3, 'draw');
+    const bal = add('g', {}, selG, 1.9, 2.05);
+    svg('circle', { cx: lx + 7, cy: ly + 22, r: 7 }, bal); svg('text', { x: lx + 7, y: ly + 25.5, class: 'tiny mid' }, bal).textContent = '01';
+    const lab = add('text', { x: lx, y: ly, class: 'lab' }, selG, 2.05, 2.3);
+    lab.textContent = 'SATURN';
+    svg('tspan', { x: lx + 66, class: 'sub' }, lab).textContent = 'IT & SECURITY';
+    add('text', { x: lx + 20, y: ly + 40, class: 'tiny' }, selG, 2.15, 2.35).textContent = 'SEE DETAIL A';
+
+    // The sheet itself: double border, zone marks, title block, scale bar, north arrow. It stays put while we dive.
+    sheetG = svg('g', { class: 'sheet' }, plan);
+    add('rect', { x: m, y: m, width: W - m * 2, height: H - m * 2, pathLength: 1, 'stroke-dasharray': 1 }, sheetG, 0, .7, 'draw');
+    add('rect', { x: m + 5, y: m + 5, width: W - m * 2 - 10, height: H - m * 2 - 10, class: 'thin' }, sheetG, .3, .7);
+    const zones = add('g', { class: 'thin' }, sheetG, .4, .8), nz = phone ? 4 : 8, nzy = phone ? 8 : 6;
+    for (let k = 1; k < nz; k++) { const x = m + (W - m * 2) * k / nz; svg('line', { x1: x, y1: m, x2: x, y2: m + 5 }, zones); svg('line', { x1: x, y1: H - m - 5, x2: x, y2: H - m }, zones); }
+    for (let k = 1; k < nzy; k++) { const y = m + (H - m * 2) * k / nzy; svg('line', { x1: m, y1: y, x2: m + 5, y2: y }, zones); svg('line', { x1: W - m - 5, y1: y, x2: W - m, y2: y }, zones); }
+    const tw = phone ? W - m * 2 - 10 : 300, th = 84, bx = W - m - 5 - tw, by = H - m - 5 - th;
+    const tb = add('g', {}, sheetG, .5, .9);
+    svg('rect', { x: bx, y: by, width: tw, height: th }, tb);
+    for (const y of [26, 44, 62]) svg('line', { x1: bx, y1: by + y, x2: bx + tw, y2: by + y, class: 'thin' }, tb);
+    svg('line', { x1: bx + tw * .55, y1: by + 44, x2: bx + tw * .55, y2: by + th, class: 'thin' }, tb);
+    const T = (x, y, txt, cls = 'tiny') => { svg('text', { x: bx + x, y: by + y, class: cls }, tb).textContent = txt; };
+    T(8, 17, 'SOLAR SYSTEM — GENERAL ARRANGEMENT', 'lab sm'); T(8, 38, 'J. CHIA · PORTFOLIO · PLAN VIEW, ECLIPTIC');
+    T(8, 56, 'DRG NO. JC-001'); T(tw * .55 + 8, 56, 'REV A'); T(8, 76, 'SCALE NTS'); T(tw * .55 + 8, 76, 'SHEET 1 OF 5');
+    const sbx = m + 18, sby = H - m - 26, sw = phone ? 90 : 140;
+    const sb = add('g', {}, sheetG, .6, 1);
+    svg('rect', { x: sbx, y: sby, width: sw, height: 5 }, sb);
+    for (let k = 0; k < 4; k += 2) svg('rect', { x: sbx + sw * k / 4, y: sby, width: sw / 4, height: 5, class: 'fillc' }, sb);
+    for (const [k, txt] of [[0, '0'], [2, '5'], [4, '10 AU']]) svg('text', { x: sbx + sw * k / 4, y: sby - 5, class: 'tiny' + (k === 2 ? ' mid' : '') }, sb).textContent = txt;
+    if (phone) sb.setAttribute('transform', `translate(0 ${-th - 14})`);
+    const nxp = W - m - 40, nyp = m + 44;
+    const na = add('g', {}, sheetG, .6, 1);
+    svg('circle', { cx: nxp, cy: nyp, r: 16, class: 'thin' }, na);
+    svg('path', { d: `M${nxp} ${nyp - 20}L${nxp + 5} ${nyp + 6}L${nxp} ${nyp + 2}L${nxp - 5} ${nyp + 6}Z`, class: 'fillc' }, na);
+    svg('text', { x: nxp, y: nyp - 25, class: 'tiny mid' }, na).textContent = 'N';
+    add('text', { x: m + 18, y: m + 30, class: 'lab sm' }, sheetG, .5, .9).textContent = 'PLAN — SOLAR SYSTEM';
+    add('text', { x: m + 18, y: m + 46, class: 'tiny' }, sheetG, .6, 1).textContent = 'ORBITS NOT TO SCALE · ALL DIMENSIONS IN AU';
+  }
+  function drawPlan(it, sx, sy, projR) {
+    for (const p of planEls) {
+      const v = ss(p.t0, p.t1, it);
+      if (p.kind === 'draw') p.e.style.strokeDashoffset = 1 - v;
+      else p.e.style.opacity = v;
+    }
+    // The drawing grows exactly as fast as the real Saturn does, so the symbol becomes the planet.
+    const k = Math.max(1, projR / iconR), near = projR / planR;
+    // scale about where Saturn was drawn, then carry that point to where Saturn is now, so the two never drift apart
+    zoomG.setAttribute('transform', `translate(${sx} ${sy}) scale(${k}) translate(${-sx0} ${-sy0})`);
+    restG.style.opacity = 1 - ss(2, 6, k);
+    selG.style.opacity = 1 - ss(1.15, 2, k);
+    sheetG.style.opacity = 1 - ss(1.1, 1.8, k);
+    zoomG.style.opacity = 1 - ss(.22, .42, near);
+    return k;
+  }
+  // Part labels on the exploded drawing, pinned to points in Saturn's tilted frame.
+  const PART_AT = [V3(0, 2.15, 0), ...RING_PARTS.map(([, , r1, o], i) => V3(i === 0 ? -1.5 : r1 * .98, o, 0))];
+  parts[0].textContent = `Clay shell · ${TILES} tiles`;
+  RING_PARTS.forEach(([name], i) => { parts[i + 1].textContent = name; parts[i + 1].classList.toggle('l', i === 0); });
+
+  // ---------- Places: each stop sits somewhere different ----------
+  // About: floating above the curved horizon of a huge clay world.
+  world.scale.setScalar(40); atmosphere.scale.setScalar(40);
+  // Projects: orbiting just above a planet's ring, a wide curved band of clay stones.
+  const ringC = S[2].clone().add(V3(-40, -3.2, -20));
+  const debris = stoneField(coarse ? 1200 : 3000, 1, () => {
+    for (;;) {
+      const a = Math.random() * TAU, r = 40 + Math.random() * 9, p = V3(Math.cos(a) * r, (Math.random() - .5) * .35, Math.sin(a) * r);
+      const w = p.clone().add(ringC);
+      if (w.distanceTo(S[2]) < 36 && w.distanceTo(VIEW[2]) > 7) return [p, .015 + Math.random() ** 4 * .16];
+    }
+  });
+  debris.position.copy(ringC);
+  // Experience: deep inside an asteroid belt, rocks receding into the distance, the flight path kept clear.
+  const fwd = S[3].clone().sub(VIEW[3]).normalize(), side = V3(0, 1, 0).cross(fwd).normalize(), up = fwd.clone().cross(side);
+  const clear = [...paths[2].getSpacedPoints(40), ...paths[3].getSpacedPoints(40)];
+  const belt = stoneField(coarse ? 100 : 220, coarse ? 2 : 3, () => {
+    for (;;) {
+      const g = Math.random() + Math.random() + Math.random() - 1.5;
+      const p = S[3].clone().addScaledVector(fwd, 5 + Math.random() * 45).addScaledVector(side, (Math.random() - .5) * 60).addScaledVector(up, g * 8);
+      if (p.distanceTo(S[3]) < 4.5 || clear.some(c => c.distanceTo(p) < 3)) continue;
+      return [p.sub(S[3]), .06 + Math.random() ** 3 * .8];
+    }
+  });
+  belt.position.copy(S[3]);
+  // Contact: the sun rising from behind the moon's edge.
+  const sunU = { uO: { value: 0 } };
+  const sun = new THREE.Mesh(new THREE.PlaneGeometry(34, 34), new THREE.ShaderMaterial({
+    uniforms: sunU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
+    vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
+    fragmentShader: `uniform float uO; varying vec2 vUv;
+      void main(){
+        vec2 p = vUv * 2. - 1.; float r = length(p), a = atan(p.y, p.x);
+        float core = exp(-r * r * 60.), halo = exp(-r * 4.) * .45;
+        float rays = pow(.5 + .5 * sin(a * 11. + sin(a * 4.) * 2.), 8.) * exp(-r * 3.) * .3;
+        vec3 c = mix(vec3(.95, .5, .28), vec3(1., .94, .82), core * 1.5 + halo * .4);
+        gl_FragColor = vec4(c * (core * 1.4 + halo + rays) * uO * (1. - smoothstep(.6, 1., r)), 1.);
+      }`
+  }));
+  scene.add(world, atmosphere, debris, belt, sun);
+  const nearStop = (at, i) => 1 - ss(.4, .85, Math.abs(at - i));
+
+  // ---------- Extras ----------
+  // A clay rocket flies up into view from below the screen, arcs across the empty sky on the left and curves off into the distance.
+  const rocketPath = new THREE.CatmullRomCurve3([V3(-.6, -5.6, 1.9), V3(-1.1, -2.3, 1.7), V3(-2.4, -.2, 1.4), V3(-5.2, 1, -1.6), V3(-8.6, 1.3, -8.5), V3(-9.5, 1.1, -13), V3(-12.5, 1.6, -24), V3(-15, 2.1, -45)]);
+  const flameU = { uT: { value: 0 } };
+  const flame = new THREE.Mesh(new THREE.ConeGeometry(.2, 1, 24, 1, true).translate(0, -.5, 0), new THREE.ShaderMaterial({
+    uniforms: flameU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
+    vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
+    fragmentShader: `uniform float uT; varying vec2 vUv;
+      void main(){   // fire palette from the loader: core #fff3d0, yellow #f6c45a, orange #ec7a3b
+        float h = vUv.y, fl = .85 + .15 * sin(uT * 40. + vUv.x * 30.);
+        vec3 c = mix(vec3(.93, .48, .23), mix(vec3(.96, .77, .35), vec3(1., .95, .82), smoothstep(.7, 1., h)), smoothstep(.2, .8, h));
+        gl_FragColor = vec4(c * pow(h, 1.6) * fl * 1.4, 1.); }`
+  }));
+  flame.position.y = -1.2; rocket.add(flame);
+  // Its trail: a dense chain of soft overlapping smoke puffs, warm at the nozzle, widening and thinning out behind.
+  // (Puffs rather than a ribbon, so it looks the same from any angle.)
+  const TN = 260, TL = .3, trailPos = new Float32Array(TN * 3), trailA = new Float32Array(TN), trailS = new Float32Array(TN);
+  for (let k = 0; k < TN; k++) { trailA[k] = k / (TN - 1); trailS[k] = Math.random(); }
+  const tg = new THREE.BufferGeometry();
+  tg.setAttribute('position', new THREE.BufferAttribute(trailPos, 3)); tg.setAttribute('aA', new THREE.BufferAttribute(trailA, 1)); tg.setAttribute('aSeed', new THREE.BufferAttribute(trailS, 1));
+  const trailU = { uT: { value: 0 }, uO: { value: 0 }, uPx: { value: 1 } };
+  const trail = new THREE.Points(tg, new THREE.ShaderMaterial({
+    uniforms: trailU, transparent: true, depthWrite: false,
+    vertexShader: `uniform float uPx; attribute float aA, aSeed; varying float vA, vSeed;
+      void main(){ vA = aA; vSeed = aSeed; vec4 mv = modelViewMatrix * vec4(position, 1.); gl_Position = projectionMatrix * mv;
+        gl_PointSize = min((.18 + aA * 1.6) * uPx / -mv.z, 220.); }`,
+    fragmentShader: `uniform float uT, uO; varying float vA, vSeed;
+      float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+        return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + 1.), f.x), f.y); }
+      void main(){
+        vec2 q = gl_PointCoord - .5; float d = length(q) * 2.;
+        float wisp = n(q * 3.5 + vSeed * 17. + uT * .15) * .6 + n(q * 8. - vSeed * 9.) * .4;   // lumpy, not a perfect disc
+        float a = (1. - smoothstep(.2 + wisp * .3, 1., d)) * (.55 + .45 * wisp) * pow(1. - vA, 1.4) * smoothstep(0., .02, vA) * uO;
+        vec3 c = mix(vec3(1., .72, .45), vec3(.84, .78, .7), smoothstep(.02, .12, vA));   // warm near the flame, cream smoke after
+        gl_FragColor = vec4(c, a * .15);
+      }`
+  }));
+  trail.frustumCulled = false;
+  const UP = V3(0, 1, 0), rdir = new THREE.Vector3(), tp = new THREE.Vector3();
+  // Contact: a little space station keeps the moon company, its docking light blinking: come and dock.
+  station.rotation.set(.3, 0, -.3);
+  // The journey: small clay things from the story drifting through their scenes, kitchen to IT to security.
+  // [file, height, stop, desktop spot, phone spot]; spots are in the stop camera's own terms:
+  // x right, y up, z towards the camera (so each lands in a clear patch of sky, nearer ones drift past faster).
+  let isPhone = false;
+  const JOURNEY = [
+    ['suitcase', .95, 1, V3(-2.5, 1.4, -1.6), V3(-.85, -1.15, -1)],
+    ['router', .8, 2, V3(-3.2, .8, 0), V3(-.75, -1.35, 0)],
+    ['padlock', .75, 2, V3(2.1, -1.3, .5), V3(.75, 1.2, 0)],
+    ['dishes', .85, 3, V3(-2.9, .8, 1.5), V3(.75, 1.25, 0)],
+    ['gradcap', .75, 3, V3(-2.1, 1.8, -1), V3(-.85, -1.5, .5)],
+    ['laptop', .85, 3, V3(1.6, -1.25, 1), V3(.6, -1.55, 1)],
+  ].map(([name, h, stop, desk, phone], i) => {
+    const j = { stop, desk, phone, h, asp: 1, seed: i * 1.7 };
+    const tex = new THREE.TextureLoader().load(`images/space/clay/journey-${name}.webp`, t => { j.asp = t.image.width / t.image.height; sizeItem(j); });
+    tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+    j.mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), patch(new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, color: new THREE.Color(.86, .85, .84), toneMapped: false }), { paint: true }));
+    scene.add(j.mesh);
+    return j;
+  });
+  function sizeItem(j) { const k = j.h * (isPhone ? .7 : 1); j.mesh.scale.set(k * j.asp, k, 1); }
+  // A point in a stop camera's own terms (x right, y up, z towards the camera) -> world.
+  const fwd0 = new THREE.Vector3(), right0 = new THREE.Vector3(), up0 = new THREE.Vector3();
+  function camSpace(i, v, out) {
+    fwd0.subVectors(S[i], VIEW[i]).normalize(); right0.crossVectors(fwd0, UP).normalize(); up0.crossVectors(right0, fwd0);
+    return out.copy(S[i]).addScaledVector(right0, v.x).addScaledVector(up0, v.y).addScaledVector(fwd0, -v.z);
+  }
+  scene.add(rocket, trail, station);
+
+  // ---------- Dust: thousands of motes scattered along the whole flight path, near ones big and soft ----------
+  const N = coarse ? 2400 : 11000, dp = new Float32Array(N * 3), dSeed = new Float32Array(N), dSize = new Float32Array(N), dCol = new Float32Array(N * 3);
+  const tmp = new THREE.Vector3();
+  for (let i = 0; i < N; i++) {
+    const at = i < N * .3 ? VIEW[i % 5].clone().lerp(S[i % 5], .5) : paths[(Math.random() * 4) | 0].getPoint(Math.random());   // denser around each stop
+    tmp.randomDirection().multiplyScalar(1.5 + Math.random() ** .7 * 14);
+    dp.set([at.x + tmp.x, at.y + tmp.y, at.z + tmp.z], i * 3);
+    dSeed[i] = Math.random(); dSize[i] = .012 + Math.random() ** 4 * .03;
+    const k = Math.random(), c = new THREE.Color(k < .2 ? '#d98c6a' : k < .3 ? '#f6c45a' : k < .36 ? '#ec7a3b' : '#ead9c3');   // cream, rust and a few fire-coloured sparks
+    dCol.set([c.r, c.g, c.b], i * 3);
+  }
+  const dg = new THREE.BufferGeometry();
+  dg.setAttribute('position', new THREE.BufferAttribute(dp, 3));
+  dg.setAttribute('aSeed', new THREE.BufferAttribute(dSeed, 1));
+  dg.setAttribute('aSize', new THREE.BufferAttribute(dSize, 1));
+  dg.setAttribute('aCol', new THREE.BufferAttribute(dCol, 3));
+  const dustU = { uTime: { value: 0 }, uPx: { value: 1 }, uSpread: { value: 1 }, uC: { value: S[0] }, uFlow: { value: null }, uFocus: { value: 8.6 }, uPrev: { value: new THREE.Matrix4() }, uVP: { value: new THREE.Vector2(1, 1) }, uStreak: { value: 0 } };
+  const dust = new THREE.Points(dg, new THREE.ShaderMaterial({
+    uniforms: dustU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: `
+      uniform float uTime, uPx, uSpread, uFocus; uniform vec3 uC; uniform sampler2D uFlow; uniform mat4 uPrev; uniform vec2 uVP; uniform float uStreak;
+      attribute float aSeed, aSize; attribute vec3 aCol;
+      varying float vA, vSoft, vBok, vThick; varying vec3 vC, vStreak;
+      void main(){
+        vec3 p = position + vec3(sin(uTime * .07 + aSeed * 40.), sin(uTime * .05 + aSeed * 17.), cos(uTime * .06 + aSeed * 23.)) * vec3(.35, .3, .25);
+        float s = clamp(uSpread * 1.6 - aSeed * .6, 0., 1.);            // intro: motes burst outward from Saturn
+        p = uC + (p - uC) * mix(.05, 1., 1. - pow(1. - s, 3.));
+        vec4 mv = modelViewMatrix * vec4(p, 1.);
+        vec4 cl = projectionMatrix * mv;
+        cl.xy += texture2D(uFlow, cl.xy / cl.w * .5 + .5).xy * .035 * cl.w;   // the cursor's wake sweeps the dust along
+        gl_Position = cl;
+        float z = -mv.z;
+        // Tiny sharp specks; ones away from the subject's distance just go a little softer and dimmer, never into big discs.
+        float coc = clamp(abs(z - uFocus) / z, 0., 1.), grow = 1. + coc * .5;
+        gl_PointSize = clamp(aSize * uPx * grow / z, 1., uPx * .0045);
+        vSoft = .35 + coc * .35; vBok = 0.;
+        // Speed streaks: how far this speck moved on screen since last frame; while flying, it stretches into a short line.
+        vec4 pc = uPrev * vec4(p, 1.);
+        vec2 vel = (cl.xy / cl.w - pc.xy / pc.w) * .5 * uVP;
+        float base = gl_PointSize, L = clamp(length(vel) * 1.1 - 3., 0., 22.) * uStreak * step(.88, aSeed);   // only ~1 in 8 specks streaks
+        gl_PointSize = base + L;
+        vStreak = vec3(L > 0. ? normalize(vel) : vec2(1., 0.), L / gl_PointSize); vThick = base / gl_PointSize;
+        // Light: specks between us and the rim light (behind, left) glow, others stay dim; now and then one glints.
+        vec3 vd = normalize(mv.xyz); float cs = dot(vd, normalize(vec3(-6., 1., -5.)));
+        float phase = .45 + .55 * (1. - .36) / pow(1.36 - 1.2 * cs, 1.5);
+        float glint = pow(max(0., sin(uTime * (.4 + aSeed * 1.3) + aSeed * 90.)), 40.) * 2.5 * (1. - coc);
+        vA = smoothstep(.4, 1.6, z) * smoothstep(70., 30., z) * (.55 + aSeed * .45) * s * (phase + glint) * (1. - coc * .4) * 1.15 * mix(1., 2.2, vStreak.z) / (1. + vStreak.z * 1.5);
+        vC = aCol;
+      }`,
+    fragmentShader: `
+      varying float vA, vSoft, vBok, vThick; varying vec3 vC, vStreak;
+      void main(){
+        vec2 q = gl_PointCoord - .5; q.y = -q.y;                     // distance to the streak's core line, in speck radii
+        float h = vStreak.z * .5, tt = clamp(dot(q, vStreak.xy), -h, h);
+        float d = length(q - vStreak.xy * tt) / (vThick * .5);
+        float a = mix(1. - smoothstep(1. - vSoft, 1., d),
+                      (1. - smoothstep(.86, 1., d)) * (.72 + .4 * smoothstep(.55, .95, d)), vBok);   // out-of-focus discs have a faint brighter rim
+        gl_FragColor = vec4(vC * a * vA * .7, 1.);
+      }`
+  }));
+  dust.frustumCulled = false;
+  scene.add(dust);
+
+  // ---------- Background: the dark smoke from v1. Each stop has its own sky; the cursor stirs it like water ----------
+  // Sky per stop: base, cloud shadow, cloud light, cloud scale, cloud threshold (lower = thicker smoke).
+  const ENV = [
+    [[.07, .055, .05], [.20, .10, .08], [.46, .24, .14], 1.5, .34],   // Saturn: rust dusk
+    [[.035, .07, .09], [.05, .17, .21], [.22, .30, .29], 1.2, .38],   // astronaut: deep teal water
+    [[.05, .045, .10], [.13, .09, .25], [.40, .19, .30], 1.8, .36],   // satellite: violet signal haze
+    [[.08, .065, .045], [.22, .15, .08], [.50, .33, .17], 2.4, .40],  // asteroids: ochre dust storm
+    [[.04, .05, .065], [.11, .13, .17], [.32, .32, .34], 1.1, .46],   // moon: cold silver night
+  ];
+  const envU = { uBase: { value: V3() }, uLo: { value: V3() }, uHi: { value: V3() }, uScale: { value: 1.5 }, uThr: { value: .34 } };
+  function setEnv(at) {
+    const i = Math.min(3, Math.floor(at)), f = ss(.2, .8, at - i), A = ENV[i], B = ENV[i + 1];
+    ['uBase', 'uLo', 'uHi'].forEach((k, j) => envU[k].value.set(...A[j]).lerp(V3(...B[j]), f));
+    envU.uScale.value = A[3] + (B[3] - A[3]) * f; envU.uThr.value = A[4] + (B[4] - A[4]) * f;
+  }
+
+  // Flow trail: a small texture of cursor velocity that fades and carries itself along, like a wake in water.
+  const FS = coarse ? 96 : 192;
+  const rtOpt = { type: THREE.HalfFloatType, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false };
+  let flowA = new THREE.WebGLRenderTarget(FS, FS, rtOpt), flowB = new THREE.WebGLRenderTarget(FS, FS, rtOpt);
+  [flowA, flowB].forEach(rt => { renderer.setRenderTarget(rt); renderer.clear(); });
+  renderer.setRenderTarget(null);
+  const flowU = { uPrev: { value: null }, uPos: { value: new THREE.Vector2(-9, -9) }, uVel: { value: new THREE.Vector2() }, uAsp: { value: 1 } };
+  const flowScene = new THREE.Scene();
+  flowScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({
+    depthTest: false, depthWrite: false, uniforms: flowU,
+    vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }`,
+    fragmentShader: `
+      uniform sampler2D uPrev; uniform vec2 uPos, uVel; uniform float uAsp; varying vec2 vUv;
+      void main(){
+        vec2 px = vec2(${(1 / FS).toFixed(5)}), f = texture2D(uPrev, vUv).xy, a = vUv - f * .012;
+        f = (texture2D(uPrev, a).xy * 4. + texture2D(uPrev, a + vec2(px.x, 0)).xy + texture2D(uPrev, a - vec2(px.x, 0)).xy
+           + texture2D(uPrev, a + vec2(0, px.y)).xy + texture2D(uPrev, a - vec2(0, px.y)).xy) / 8. * .982;   // the wake drifts on its own motion, spreads and settles
+        vec2 d = (vUv - uPos) * vec2(uAsp, 1.);
+        f += uVel * exp(-dot(d, d) * 260.);
+        gl_FragColor = vec4(clamp(f, -1.5, 1.5), 0., 1.);
+      }`
+  })));
+
+  const NOISE = `
+    #define OCT ${coarse ? 3 : 5}
+    #define NEAR ${coarse ? 0 : 1}
+    float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3. - 2. * f);
+      return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y); }
+    float fbm(vec2 p){ float v = 0., a = .5; for (int i = 0; i < OCT; i++) { v += a * noise(p); p *= 2.02; a *= .5; } return v; }`;
+  const paperU = { uPaper: { value: 0 }, uZoom: { value: 1 }, uZc: { value: new THREE.Vector2() }, uDpr: { value: 1 } };
+  const bgScene = new THREE.Scene(), bgCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const neb = new THREE.ShaderMaterial({
+    depthTest: false, depthWrite: false,
+    uniforms: { uRes: { value: new THREE.Vector2() }, uOff: { value: new THREE.Vector2() }, uTime: { value: 0 }, uFlow: { value: flowA.texture }, ...envU, ...paperU },
+    vertexShader: `void main(){ gl_Position = vec4(position.xy, 0., 1.); }`,
+    fragmentShader: `
+      uniform vec2 uRes, uOff, uZc; uniform float uTime, uScale, uThr, uPaper, uZoom, uDpr; uniform vec3 uBase, uLo, uHi; uniform sampler2D uFlow;
+      ${NOISE}
+      void main(){
+        vec2 uv = gl_FragCoord.xy / uRes, asp = vec2(uRes.x / uRes.y, 1.);
+        vec2 fl = texture2D(uFlow, uv).xy;                              // the cursor's wake drags the smoke with it
+        vec2 p = (uv + uOff - fl * .08) * asp * uScale; float t = uTime * .012;
+        vec2 q = vec2(fbm(p + t), fbm(p + vec2(5.2, 1.3) - t)) + fl * .5;
+        vec2 r = vec2(fbm(p + 3. * q + vec2(1.7, 9.2) + t * 1.5), fbm(p + 3. * q + vec2(8.3, 2.8)));
+        float n = fbm(p + 3. * r), cloud = smoothstep(uThr, .9, n), hue = smoothstep(.3, .8, r.x);
+        // Light it like a volume: sample a step toward the key light (upper left). Thinner there = this side faces the light.
+        float nl = fbm(p + 3. * r + vec2(-.034, .03) * uScale);
+        float lit = clamp((n - nl) * 5. + .5, 0., 1.);
+        float rim = smoothstep(uThr - .07, uThr + .06, n) * (1. - smoothstep(uThr + .06, uThr + .3, n));   // thin wispy edges
+        float wake = min(1., length(fl) * 1.4);
+        hue = mix(hue, 1., wake * .5);                       // stirred smoke catches the light
+        float vig = smoothstep(1.3, .3, length((uv - .5) * vec2(1.25, 1.)));
+        vec3 d = uBase + cloud * mix(uLo, uHi, hue) * mix(.72, 1.12, lit) + rim * uHi * .16 * lit
+               + wake * uHi * .2 * (.35 + cloud)
+               + wake * vec3(.85, .4, .22) * (.15 + cloud * .35);   // a rust tint that follows the wake's own shape, then fades with it
+        // Depth: a big slow haze far behind, and fine wisps up close that slide past faster as we travel.
+        float far = fbm(uv * asp * uScale * .4 + uOff * .35 + vec2(t * .5, -t * .3) + 11.);
+        d += smoothstep(.45, .95, far) * uLo * .3;
+        #if NEAR
+          vec2 pn = (uv + uOff * 1.9 - fl * .15) * asp * uScale * 2.3 + vec2(t * 3., t * 1.2);
+          float near = fbm(pn + 1.6 * vec2(fbm(pn + 4.1 + t * 2.), fbm(pn + 7.3 - t * 2.)));
+          d += smoothstep(.6, 1., near) * mix(uHi, vec3(1., .92, .82), .3) * .07;
+        #endif
+        d *= mix(.5, 1., vig);
+        d += (hash(gl_FragCoord.xy + fract(uTime * 7.) * 91.) - .5) * .014;   // film grain, also hides banding
+        if (uPaper > 0.) {
+          // Blueprint paper: mottled Prussian blue, fibres, a grid that keeps its density while we zoom, fold creases, chalk dust.
+          vec2 sp = gl_FragCoord.xy / uDpr, zc = uZc / uDpr;
+          float mott = fbm(uv * asp * 2.5 + 3.), fib = noise(sp * vec2(.7, .045)) * .6 + noise(sp * vec2(.05, .8)) * .4;
+          vec3 pap = vec3(.055, .17, .33) * (.78 + mott * .45) + (fib - .5) * .025 + (hash(floor(sp)) - .5) * .03;
+          float L = log(uZoom) / log(5.), fL = fract(L);
+          vec2 q = (sp - zc) * pow(5., floor(L)) / uZoom;
+          vec2 g1 = abs(fract(q / 12. + .5) - .5) * 12. * uZoom / pow(5., floor(L)),
+               g2 = abs(fract(q / 60. + .5) - .5) * 60. * uZoom / pow(5., floor(L)),
+               g3 = abs(fract(q / 300. + .5) - .5) * 300. * uZoom / pow(5., floor(L));
+          float ln = (1. - smoothstep(0., 1., min(g1.x, g1.y))) * .035 * fL + (1. - smoothstep(0., 1., min(g2.x, g2.y))) * (.035 + .045 * fL)
+                   + (1. - smoothstep(0., 1.2, min(g3.x, g3.y))) * .08;
+          pap += vec3(.6, .8, 1.) * ln * (.6 + mott * .6);
+          vec2 cr = abs(sp - uRes / uDpr * vec2(.36, .52));
+          pap += vec3(.5, .7, 1.) * (exp(-cr.x * cr.x * .02) * .035 - exp(-(cr.x - 2.) * (cr.x - 2.) * .2) * .02 + exp(-cr.y * cr.y * .02) * .03);
+          for (int k = 0; k < 2; k++) {   // chalk dust drifting up and across, twinkling
+            float cell = k == 0 ? 7. : 19.;
+            vec2 dp = sp + vec2(uTime * (6. + float(k) * 9.), uTime * (11. + float(k) * 7.)), c = floor(dp / cell);
+            float h = hash(c), dd = length(fract(dp / cell) - vec2(hash(c + 3.1), hash(c + 7.7))) * cell;
+            pap += vec3(.75, .88, 1.) * step(k == 0 ? .975 : .985, h) * smoothstep(k == 0 ? 1.1 : 2.2, 0., dd) * (.35 + .5 * sin(uTime * 3. + h * 60.)) * (k == 0 ? .5 : .9);
+          }
+          pap *= mix(.55, 1., smoothstep(1.25, .35, length((uv - .5) * vec2(1.1, 1.))));   // darker toward the edges, like an old print
+          d = mix(d, pap, uPaper);
+        }
+        gl_FragColor = vec4(d, 1.);
+      }`
+  });
+  bgScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), neb));
+
+  // ---------- Layout ----------
+  let W, H;
+  function layout() {
+    W = innerWidth; H = innerHeight;
+    renderer.setSize(W, H, false);
+    const pr = renderer.getPixelRatio();
+    dustU.uVP.value.set(W * pr, H * pr);
+    camera.aspect = W / H;
+    const phone = W / H < .9;
+    // Frame the object right of centre on desktop (clear of the caption), above it on a phone.
+    camera.setViewOffset(W, H, phone ? 0 : -W * .15, H * (phone ? .13 : .07), W, H);
+    neb.uniforms.uRes.value.set(W * renderer.getPixelRatio(), H * renderer.getPixelRatio()); paperU.uDpr.value = renderer.getPixelRatio();
+    const visH = 2 * Math.tan(THREE.MathUtils.degToRad(17.5)) * 8.5, visW = visH * W / H;
+    blueU.uPx.value = H * renderer.getPixelRatio() / (2 * Math.tan(THREE.MathUtils.degToRad(17.5)));
+    dustU.uPx.value = H * renderer.getPixelRatio() / (2 * Math.tan(THREE.MathUtils.degToRad(17.5)));
+    flowU.uAsp.value = W / H;
+    stops.forEach(({ obj }, i) => {
+      const [w, h, s] = SIZE[i], k = Math.min(1, visW * (phone ? .92 : .6) / (w * s), visH * (phone ? .5 : .68) / (h * s));
+      obj.scale.setScalar(s * k * (i === 0 ? (phone ? 1.15 : 1.25) : 1));   // Saturn opens the page, so it gets to be bigger than a fit
+    });
+    // Phones: the horizon sits lower so it stays under the caption, and the sun moves clear of the menu.
+    world.position.copy(S[1]).add(phone ? V3(4, -66, -60) : V3(8, -60, -66)); atmosphere.position.copy(world.position);
+    sun.position.copy(S[4]).add(phone ? V3(3, -.6, -16) : V3(3.2, 1.8, -16));
+    // The station keeps the moon company in the open sky to its left, small and tilted to show its wheel.
+    camSpace(4, phone ? V3(-.7, -1.45, 0) : V3(-2, .65, 0), station.position); station.scale.setScalar(phone ? .2 : .24);
+    isPhone = phone;
+    JOURNEY.forEach(j => { camSpace(j.stop, phone ? j.phone : j.desk, j.mesh.position); sizeItem(j); });
+    trailU.uPx.value = H * renderer.getPixelRatio() / (2 * Math.tan(THREE.MathUtils.degToRad(17.5)));
+  }
+  layout();
+  addEventListener('resize', layout);
+
+  // ---------- Input ----------
+  const ZERO = new THREE.Vector2(), ptr = new THREE.Vector2(), aim = new THREE.Vector2();
+  let hasPtr = false;
+  let lastMove = -1e9;   // ms of the last pointer movement: things calm down once it stops
+  if (!coarse && !reduce) addEventListener('pointermove', e => { hasPtr = true; lastMove = performance.now(); ptr.set(e.clientX / W * 2 - 1, -(e.clientY / H * 2 - 1)); });
+  // Phones: a press acts as the cursor. Once the browser takes the touch for scrolling it sends pointercancel, so swipes just scroll.
+  let touching = false, wasTouching = false;
+  if (coarse && !reduce) {
+    const at = e => { lastMove = performance.now(); ptr.set(e.clientX / W * 2 - 1, -(e.clientY / H * 2 - 1)); };
+    addEventListener('pointerdown', e => { touching = true; at(e); }, { passive: true });
+    addEventListener('pointermove', e => { if (touching) at(e); }, { passive: true });
+    for (const ev of ['pointerup', 'pointercancel']) addEventListener(ev, () => { touching = false; });
+  }
+
+  const ray = new THREE.Raycaster();   // the cursor's line into the scene, for the ring
+
+  // ---------- Living ring: the ring as fine particles, coloured from the painted ring. The cursor ripples and scatters them;
+  // once it rests they settle and Saturn makes one full turn. Light version (R key or ?ring=lite): the painted ring stays,
+  // and a thinner particle layer only shows where it is stirred. The full version keeps a faint painted ring underneath.
+  const ringDisc = rings.children.find(o => o.geometry?.type === 'RingGeometry'), RN = coarse ? 12000 : 40000, RR0 = 1.3, RR1 = 2.35;
+  const rImg = ringDisc.material.map.image, rPx = rImg.getContext('2d').getImageData(0, 0, rImg.width, 1).data;
+  const rPos = new Float32Array(RN * 3), rCol = new Float32Array(RN * 3), rSeed = new Float32Array(RN);
+  for (let n = 0; n < RN;) {
+    const u = Math.random(), x = Math.min(rImg.width - 1, Math.floor(u * rImg.width));
+    if (Math.random() > rPx[x * 4 + 3] / 255) continue;   // denser where the painted ring is denser
+    const k = .88 + Math.random() * .24;
+    rPos.set([RR0 + u * (RR1 - RR0), (Math.random() - .5) * .014, Math.random() * TAU], n * 3);   // radius, height, angle
+    rCol.set([rPx[x * 4] / 255 * k, rPx[x * 4 + 1] / 255 * k, rPx[x * 4 + 2] / 255 * k], n * 3);
+    rSeed[n++] = Math.random();
+  }
+  const rg = new THREE.BufferGeometry();
+  rg.setAttribute('position', new THREE.BufferAttribute(rPos, 3)); rg.setAttribute('aCol', new THREE.BufferAttribute(rCol, 3)); rg.setAttribute('aSeed', new THREE.BufferAttribute(rSeed, 1));
+  const ringU = { uT: { value: 0 }, uPx: { value: 1 }, uScale: { value: 1 }, uAlpha: { value: 1 }, uLite: { value: 0 }, uShade: { value: .7 }, uCk: { value: Array.from({ length: 24 }, () => new THREE.Vector4()) }, uCd: { value: Array.from({ length: 24 }, () => new THREE.Vector4()) }, uRk: { value: Array.from({ length: 36 }, () => new THREE.Vector4()) }, uRd: { value: Array.from({ length: 36 }, () => new THREE.Vector4()) }, uRR: { value: 1 },
+    uL: { value: V3(0, 1, 0) } };
+  const ringPts = new THREE.Points(rg, new THREE.ShaderMaterial({
+    uniforms: ringU, transparent: true, depthWrite: false,
+    vertexShader: `uniform float uT, uPx, uScale, uAlpha, uLite, uShade, uRR; uniform vec3 uL; uniform vec4 uRk[36], uRd[36], uCk[24], uCd[24];
+      attribute vec3 aCol; attribute float aSeed; varying vec3 vC; varying float vA;
+      // A mark in the ring (centre, travel direction, age, strength). Each speck answers it in its own way: its own reach, a lazy
+      // start (inertia), its own pace of drifting home with a long soft tail, a curl around the path that unwinds as it settles,
+      // and a little drag along the direction of travel. Used for both the rocket and the cursor. No two specks move alike.
+      vec3 wake(vec3 p, vec3 rnd, vec4 c, vec4 e, float R0, float push, float life, inout float stir){
+        if (c.w <= 0. || e.w >= life) return vec3(0.);
+        vec3 r3 = rnd + .5, dv = p - c.xyz; float age = e.w, d = length(dv) + .0001;
+        float R = R0 * (.7 + .5 * r3.x) * (1. + age * .08), f = exp(-d * d / (R * R));
+        if (f < .003) return vec3(0.);
+        float on = smoothstep(0., .2 + r3.y * .5, age) * (1. - smoothstep(life * .45, life, age));   // reaches exactly zero before the mark is dropped
+        float relax = exp(-max(0., age - .3) / (.8 + r3.z * 1.2)), relaxUp = exp(-max(0., age - .3) / (1.6 + r3.x * 1.4));
+        vec3 off = dv / d * R0 * push * (.6 + r3.y * .8);
+        float a = (1. - relax) * (.8 + r3.z * .7), cs = cos(a), sn = sin(a);
+        off = off * cs + cross(e.xyz, off) * sn + e.xyz * dot(e.xyz, off) * (1. - cs);
+        off += e.xyz * R0 * push * .47 * exp(-age / .9) * (.5 + r3.y);
+        stir += f * on * relax * .5 * c.w;
+        return (off * relax + vec3(0., sign(rnd.y) * R0 * push * .41 * (.5 + r3.x), 0.) * relaxUp + rnd * R0 * push * .53 * relax) * f * on * c.w;
+      }
+      void main(){
+        float r = position.x, ang = position.z + uT * .12 / pow(r, 1.5);   // inner bands run faster, like the real ring
+        vec3 p = vec3(cos(ang) * r, position.y, sin(ang) * r);
+        vec3 rnd = vec3(fract(aSeed * 91.7), fract(aSeed * 53.3), fract(aSeed * 17.1)) - .5;
+        float stir = 0.;
+        for (int k = 0; k < 36; k++) p += wake(p, rnd, uRk[k], uRd[k], uRR, .34, 9., stir);          // the rocket
+        for (int k = 0; k < 24; k++) p += wake(p, rnd, uCk[k], uCd[k], uRR * .55, .45, 6.5, stir);    // the cursor: smaller and softer
+        vec4 mv = modelViewMatrix * vec4(p, 1.);
+        gl_Position = projectionMatrix * mv;
+        gl_PointSize = max(1., uPx * .014 * uScale / -mv.z);
+        float t = dot(p, uL), sh = t < 0. && length(p - uL * t) < 1. ? .32 : 1.;   // the planet's shadow across the ring
+        vC = aCol * uShade * sh * (1. + min(stir, 1.) * .35);
+        vA = uAlpha * mix(.9, clamp(stir * 2.5, 0., 1.), uLite);
+      }`,
+    fragmentShader: `varying vec3 vC; varying float vA;
+      void main(){ float d = length(gl_PointCoord - .5) * 2.; if (d > 1.) discard; gl_FragColor = vec4(vC, vA * (1. - smoothstep(.5, 1., d))); }`
+  }));
+  ringPts.frustumCulled = false; rings.add(ringPts);
+  let liteRing = new URLSearchParams(location.search).get('ring') === 'lite';
+  const setRing = () => { ringDisc.material.opacity = liteRing ? 1 : .35; ringU.uLite.value = +liteRing; rg.setDrawRange(0, liteRing ? Math.round(RN / 5) : RN); };
+  setRing();
+  addEventListener('keydown', e => { if (e.key === 'r' && !e.metaKey && !e.ctrlKey) { liteRing = !liteRing; setRing(); } });
+  const ringPlane = new THREE.Plane(), rq = V3(0, 0, 0), rInv = new THREE.Matrix4(), rLast = new THREE.Vector2(99, 99), CW = [], cd = V3(0, 0, 0);
+  let turnAt = -1, armed = false;
+  function updateRing(t, on, gone) {
+    ringU.uT.value = t; ringU.uAlpha.value = 1 - gone; ringPts.visible = gone < .99;
+    ringU.uScale.value = saturn.scale.x; ringU.uPx.value = blueU.uPx.value;   // same pixels-per-unit as the blueprint sparks
+    ringU.uL.value.copy(lights.key.position).sub(lights.key.target.position).transformDirection(rInv.copy(rings.matrixWorld).invert());
+    const idle = (performance.now() - lastMove) / 1000;
+    if (on) {
+      armed = true;
+      ringPlane.setFromNormalAndCoplanarPoint(V3(0, 1, 0).transformDirection(rings.matrixWorld), rings.getWorldPosition(rq));
+      if (ray.ray.intersectPlane(ringPlane, rq)) {
+        rq.applyMatrix4(rInv);
+        const r = Math.hypot(rq.x, rq.z);
+        const step = Math.hypot(rq.x - rLast.x, rq.z - rLast.y);
+        if (r > RR0 - .25 && r < RR1 + .3 && step > .09) {   // a mark every little way; the direction is the way the cursor is moving
+          if (step < 1) { cd.set(rq.x - rLast.x, 0, rq.z - rLast.y).normalize().transformDirection(rings.matrixWorld); if (CW.length < 24) CW.push({ p: rings.localToWorld(rq.clone()), d: cd.clone(), t0: t }); }   // full: skip, never cut a live ripple short
+          rLast.set(rq.x, rq.z);
+        }
+      }
+    } else if (armed && idle > 1.5) { armed = false; turnAt = t; }   // rested: one full, smooth turn
+    while (CW.length && (t - CW[0].t0) * .55 > 6.5) CW.shift();   // same life as the shader's fade
+    const ck = ringU.uCk.value, cdv = ringU.uCd.value;
+    for (let k = 0; k < 24; k++) {
+      const w = CW[k];
+      if (!w) { ck[k].w = 0; continue; }
+      wk.copy(w.p); rings.worldToLocal(wk); ck[k].set(wk.x, wk.y, wk.z, .6);
+      wd.copy(w.d).transformDirection(rInv); cdv[k].set(wd.x, wd.y, wd.z, (t - w.t0) * .55);   // age runs slower: the cursor's ripples last longer
+    }
+    return turnAt < 0 ? 0 : ease(ss(0, 2.8, t - turnAt)) * TAU;
+  }
+  let spin = 0;
+  // The rocket's marks in the ring: world position, direction of travel and the time each was made. The shader does the rest.
+  const WAKE = [], wk = new THREE.Vector3(), wd = new THREE.Vector3();
+  function updateWake(t, pos, dir) {
+    if (pos && pos.length() < 7) {                                   // only near Saturn; one mark every ~0.4 units
+      const l = WAKE[WAKE.length - 1];
+      if (!l || l.p.distanceTo(pos) > .4) { if (WAKE.length < 36) WAKE.push({ p: pos.clone(), d: dir.clone().normalize(), t0: t }); }
+    }
+    while (WAKE.length && t - WAKE[0].t0 > 9) WAKE.shift();          // long since forgotten
+    const rk = ringU.uRk.value, rd = ringU.uRd.value;
+    for (let k = 0; k < 36; k++) {
+      const w = WAKE[k];
+      if (!w) { rk[k].w = 0; continue; }
+      wk.copy(w.p); rings.worldToLocal(wk); rk[k].set(wk.x, wk.y, wk.z, 1);
+      wd.copy(w.d).transformDirection(rInv); rd[k].set(wd.x, wd.y, wd.z, t - w.t0);
+    }
+  }
+
+  // ---------- Bloom: the brightest highlights (sun, flame, sparks, hot rims) glow softly, like a real lens ----------
+  // The glowing things (layer 1) are drawn again at quarter size, everything under a brightness threshold is dropped, the rest is blurred
+  // and added over the frame. Off on phones.
+  const BLOOM = !coarse && !reduce && QS.get('bloom') !== '0';
+  [sun, flame, trail, dust, dockLight].forEach(o => o.layers.enable(1));
+  const bloomA = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, depthBuffer: true }), bloomB = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, depthBuffer: false });
+  const quadV = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }`;
+  const blurU = { uTex: { value: null }, uDir: { value: new THREE.Vector2() }, uThr: { value: 0 } };
+  const blurMat = new THREE.ShaderMaterial({ uniforms: blurU, depthTest: false, depthWrite: false, vertexShader: quadV,
+    fragmentShader: `uniform sampler2D uTex; uniform vec2 uDir; uniform float uThr; varying vec2 vUv;
+      vec3 tap(vec2 o){ vec3 c = texture2D(uTex, vUv + o).rgb; return uThr > 0. ? max(c - uThr, 0.) : c; }
+      void main(){ vec3 c = tap(vec2(0.)) * .227 + (tap(uDir * 1.385) + tap(-uDir * 1.385)) * .316 + (tap(uDir * 3.23) + tap(-uDir * 3.23)) * .07;
+        gl_FragColor = vec4(c, 1.); }` });
+  const compU = { uTex: { value: bloomA.texture }, uK: { value: .32 } };
+  const compMat = new THREE.ShaderMaterial({ uniforms: compU, transparent: true, blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false, vertexShader: quadV,
+    fragmentShader: `uniform sampler2D uTex; uniform float uK; varying vec2 vUv;
+      void main(){ vec3 b = texture2D(uTex, vUv).rgb * uK; gl_FragColor = vec4(b / (1. + b), 1.); }` });
+  const fsQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), blurMat), fsScene = new THREE.Scene();
+  fsScene.add(fsQuad);
+  const pass = (mat, src, dst, dx, dy, thr = 0) => {
+    fsQuad.material = mat; if (mat === blurMat) { blurU.uTex.value = src.texture; blurU.uDir.value.set(dx / src.width, dy / src.height); blurU.uThr.value = thr; }
+    renderer.setRenderTarget(dst); renderer.render(fsScene, bgCam);
+  };
+  function bloom() {
+    const bw = Math.ceil(W * renderer.getPixelRatio() / 4), bh = Math.ceil(H * renderer.getPixelRatio() / 4);
+    if (bloomA.width !== bw || bloomA.height !== bh) { bloomA.setSize(bw, bh); bloomB.setSize(bw, bh); }
+    renderer.shadowMap.autoUpdate = false;                 // reuse this frame's shadows
+    renderer.setRenderTarget(bloomA); renderer.clear();
+    camera.layers.set(1); renderer.render(scene, camera); camera.layers.set(0);   // only the things that should glow
+    renderer.shadowMap.autoUpdate = true;
+    pass(blurMat, bloomA, bloomB, 1, 0, .6); pass(blurMat, bloomB, bloomA, 0, 1);
+    pass(blurMat, bloomA, bloomB, 2.5, 0); pass(blurMat, bloomB, bloomA, 0, 2.5);
+    pass(compMat, null, null);
+  }
+
+  // ---------- Sound (off until the visitor turns it on): calm and expansive, in the spirit of a space-film score.
+  // Warm organ chords and an airy pad swell and overlap, a sparse soft piano drifts above, a low drone gives depth and a
+  // faint shimmer sits high like distant stars, all in a big hall reverb behind a gentle low-pass. The wind rises only while
+  // the camera travels. Nothing percussive: every sound fades in and out. Synthesised here, original, no files. ----------
+  const sndBtn = document.querySelector('.sound-btn');
+  let ac = null, master, bus, wind, windF, next = 0, ci = 0, sleepT;
+  const hz = m => 440 * 2 ** ((m - 69) / 12);                 // MIDI note -> Hz
+  const CH = 14;                                               // seconds per chord
+  // A minor, hopeful: Am(add9) - Fmaj7 - C(add9) - G(sus2)
+  const CHORDS = [[45, 52, 59, 60, 64], [41, 48, 52, 57, 60], [48, 55, 62, 64, 67], [43, 50, 55, 57, 62]];
+  const SKY = [[76, 83], [72, 81], [79, 86], [74, 81]];        // high tones for the piano and the shimmer, per chord
+  function env(g, t, a, hold, r, peak) {                       // slow swell in, hold, slow fade out
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a);
+    g.gain.setValueAtTime(peak, t + a + hold); g.gain.linearRampToValueAtTime(0, t + a + hold + r);
+  }
+  function startSound() {
+    ac = new AudioContext();
+    master = ac.createGain(); master.gain.value = 0;
+    const soft = ac.createBiquadFilter(); soft.type = 'lowpass'; soft.frequency.value = 3000; soft.Q.value = .5;   // never harsh
+    master.connect(soft).connect(ac.destination);
+    const len = ac.sampleRate * 7, ir = ac.createBuffer(2, len, ac.sampleRate);   // a vast 7 s hall
+    for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len) ** 2.8; }
+    const verb = ac.createConvolver(); verb.buffer = ir;
+    const wet = ac.createGain(); wet.gain.value = .8; const dry = ac.createGain(); dry.gain.value = .35;
+    bus = ac.createGain(); bus.connect(dry).connect(master); bus.connect(verb).connect(wet).connect(master);
+    // low drone for depth: A1 and its fifth, barely there, breathing slowly
+    const dl = ac.createBiquadFilter(); dl.type = 'lowpass'; dl.frequency.value = 180; dl.connect(bus);
+    [[33, .022], [40, .008]].forEach(([m, g]) => { const o = ac.createOscillator(), og = ac.createGain(); o.frequency.value = hz(m); og.gain.value = g; o.connect(og).connect(dl); o.start(); });
+    const br = ac.createOscillator(), bg = ac.createGain(); br.frequency.value = .05; bg.gain.value = 40; br.connect(bg).connect(dl.frequency); br.start();
+    // flight wind: soft filtered noise, silent at rest
+    const buf = ac.createBuffer(1, ac.sampleRate * 4, ac.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0, b = 0; i < d.length; i++) { b = .985 * b + (Math.random() * 2 - 1) * .05; d[i] = b; }
+    const ns = ac.createBufferSource(); ns.buffer = buf; ns.loop = true;
+    windF = ac.createBiquadFilter(); windF.type = 'bandpass'; windF.Q.value = .6; windF.frequency.value = 400;
+    wind = ac.createGain(); wind.gain.value = 0;
+    ns.connect(windF).connect(wind).connect(bus); ns.start();
+    next = ac.currentTime + .2;
+    setInterval(schedule, 500);
+  }
+  function organ(m, t, g) {                                    // drawbar-like harmonics, swelling over 4 s
+    const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1100; f.connect(bus);
+    const e = ac.createGain(); env(e, t, 4.5, CH - 6, 5.5, g); e.connect(f);
+    [[1, 1], [2, .4], [3, .14], [4, .07]].forEach(([h, a]) => {
+      const o = ac.createOscillator(), og = ac.createGain(); o.frequency.value = hz(m) * h; o.detune.value = (Math.random() - .5) * 6; og.gain.value = a;
+      o.connect(og).connect(e); o.start(t); o.stop(t + CH + 4.5);
+    });
+  }
+  function pad(m, t, g) {                                      // airy string-like pad: two detuned saws, darkened, a slow filter drift
+    const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 700; f.Q.value = .3; f.connect(bus);
+    const lfo = ac.createOscillator(), lg = ac.createGain(); lfo.frequency.value = .07 + Math.random() * .05; lg.gain.value = 260; lfo.connect(lg).connect(f.frequency); lfo.start(t); lfo.stop(t + CH + 8);
+    const e = ac.createGain(); env(e, t, 6, CH - 7, 8, g); e.connect(f);
+    [-7, 7].forEach(dt => { const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = hz(m); o.detune.value = dt; o.connect(e); o.start(t); o.stop(t + CH + 8); });
+  }
+  function piano(m, t, g) {                                    // soft, rounded note with a long fade, no hard attack
+    const e = ac.createGain(), o = ac.createOscillator(), o2 = ac.createOscillator(), g2 = ac.createGain();
+    o.frequency.value = hz(m); o2.frequency.value = hz(m) * 2; o2.detune.value = 3; g2.gain.value = .15;
+    o.connect(e); o2.connect(g2).connect(e); e.connect(bus);
+    e.gain.setValueAtTime(0, t); e.gain.linearRampToValueAtTime(g, t + .12); e.gain.exponentialRampToValueAtTime(.0001, t + 6);
+    o.start(t); o2.start(t); o.stop(t + 6.1); o2.stop(t + 6.1);
+  }
+  function shimmer(m, t) {                                     // distant star: a high sine with slow vibrato, swelling in and out
+    const o = ac.createOscillator(), e = ac.createGain(), v = ac.createOscillator(), vg = ac.createGain();
+    o.frequency.value = hz(m + 12); v.frequency.value = .3 + Math.random() * .3; vg.gain.value = 3; v.connect(vg).connect(o.detune);
+    env(e, t, 4, 1 + Math.random() * 2, 5, .0035); o.connect(e).connect(bus);
+    o.start(t); v.start(t); o.stop(t + 12); v.stop(t + 12);
+  }
+  function schedule() {                                        // plan the next chord a little ahead of time
+    if (!ac || ac.state !== 'running') return;
+    while (next < ac.currentTime + 1.5) {
+      const c = CHORDS[ci % 4], sky = SKY[ci % 4];
+      c.forEach((m, k) => organ(m, next, k ? .011 : .016));
+      c.slice(1).forEach(m => pad(m + 12, next + .5, .0045));
+      // sparse piano: three soft notes with wide gaps, at loose times inside the chord
+      [1.5, 5.5 + Math.random() * 1.5, 10 + Math.random() * 1.5].forEach((dt, k) => piano(sky[k % 2] - (k === 2 ? 12 : 0), next + dt, .012));
+      for (let k = 0; k < 3; k++) shimmer(sky[k % 2], next + 1 + k * 4 + Math.random() * 2);
+      next += CH; ci++;
+    }
+  }
+  sndBtn.addEventListener('click', () => {
+    const on = sndBtn.getAttribute('aria-pressed') !== 'true';
+    sndBtn.setAttribute('aria-pressed', on);
+    clearTimeout(sleepT);
+    if (on) { if (!ac) startSound(); ac.resume(); master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(.55, ac.currentTime, 2); }   // ~6 s fade in
+    else { master.gain.cancelScheduledValues(ac.currentTime); master.gain.setTargetAtTime(0, ac.currentTime, 1.3); sleepT = setTimeout(() => ac.suspend(), 7000); }   // ~4 s fade out
+  });
+  const prevCam = new THREE.Vector3();
+  let prevSet = false;
+
+  // ---------- Loop ----------
+  const ease = x => x < .5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2;
+  const LIGHT = { key: V3(-7, 6, 3), rim: V3(-6, 1, -5), bounce: V3(6, -2, 4) };   // studio light, fixed to the camera
+  const camPos = new THREE.Vector3(), look = new THREE.Vector3(), off = new THREE.Vector3();
+  const perf = { n: 0, sum: 0, last: 0, done: false };
+  let ps = 0, start = null, shownStop = -1, last = 0;
+  const INTRO = reduce ? 0 : 6.2;
+  let seen = false; try { seen = !!sessionStorage.getItem('pfx-intro'); } catch {}
+  let itOff = seen ? 2.35 : 0, itNow = 0;   // returning visitors start at the dive
+  if (INTRO) {
+    root.classList.add('intro'); lenis?.stop();
+    const skip = () => { if (itNow < 4.95) itOff += 4.95 - itNow; };   // scroll, tap or a key jumps to the assembly
+    for (const ev of ['wheel', 'touchstart', 'keydown']) addEventListener(ev, skip, { passive: true });
+  } else plan.remove();
+  history.scrollRestoration = 'manual'; scrollTo(0, 0);
+
+  renderer.setAnimationLoop(ms => {
+    if (!perf.done && perf.last && !QS.has('perf')) {   // ?perf keeps full resolution, for measuring                       // if the first 90 frames run slow, drop resolution
+      perf.sum += ms - perf.last;
+      if (++perf.n === 90) { perf.done = true; if (perf.sum / 90 > 24 && renderer.getPixelRatio() > 1) { renderer.setPixelRatio(1); layout(); } }
+    }
+    perf.last = ms;
+    lenis?.raf(ms);
+    start ??= ms;
+    const t = reduce ? 0 : ms / 1000, it = itNow = (ms - start) / 1000 + itOff, dt = Math.min(.05, (ms - last) / 1000 || .016);
+    last = ms;
+
+    // Intro timeline: the sheet and plan draw (0-2s), Saturn called out (1.9-2.35s), dive into detail A (2.4-4s),
+    // Saturn pulls apart into an exploded drawing (4-4.5s), labels (4.3-5s), it assembles (4.95-5.55s), clay fills in (5.35-6.05s).
+    const fill = ss(5.35, 6.05, it);
+    blueU.uDraw.value = 1.05;
+    dustU.uSpread.value = reduce ? 1 : ss(5.4, 6.6, it);
+    if (INTRO && it > INTRO && root.classList.contains('intro')) {
+      root.classList.remove('intro'); lenis?.start(); plan.remove(); parts.forEach(p => p.remove());
+      try { sessionStorage.setItem('pfx-intro', '1'); } catch {}
+    }
+
+    // Scroll -> position along the flight, with inertia so the camera keeps gliding after the wheel stops.
+    const raw = it < INTRO ? 0 : Math.min(4, Math.max(0, scrollY / Math.max(1, maxScroll()) * 4));
+    ps = reduce ? Math.round(raw) : ps + (raw - ps) * (1 - Math.exp(-dt * 2.4));
+    const seg = Math.min(3, Math.floor(ps)), u = ease(Math.min(1, Math.max(0, (ps - seg - .12) / .76)));   // hold at each stop, then move
+    const now = Math.min(4, Math.round(seg + u));
+    setActive(now);
+    if (reduce && now !== shownStop) { canvas.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 300 }); shownStop = now; }
+
+    // Camera on this move's curve; it looks from one object to the next, banking mid-move.
+    paths[seg].getPoint(u, camPos);
+    look.lerpVectors(S[seg], S[seg + 1], ss(.08, .6, u));   // turn to the next object early, so it is in view mid-move
+    if (it < INTRO) camPos.sub(S[0]).multiplyScalar(Math.pow(DIVE, 1 - ss(2.3, 4.2, it))).add(S[0]);   // intro: dive straight in along the view line
+    camera.position.copy(camPos);
+    camera.lookAt(look);
+    camera.rotateZ(Math.sin(Math.PI * u) * MOVES[seg].roll);
+    aim.lerp(hasPtr ? ptr : ZERO, .05);
+    camera.rotateY(-aim.x * .035); camera.rotateX(aim.y * .025);   // gentle tilt toward the cursor
+    camera.updateMatrixWorld();
+    tileLines.visible = ringLines.visible = tileSparks.visible = false;
+    if (it < INTRO) {   // the plan and part labels follow where Saturn is on screen
+      saturn.updateMatrixWorld();   // Saturn's real centre (it bobs gently), not just its stop
+      const sp = saturn.getWorldPosition(off).project(camera), sx = (sp.x + 1) / 2 * W, sy = (1 - sp.y) / 2 * H;
+      const projR = saturn.scale.x / camera.position.distanceTo(S[0]) * H / 2 / Math.tan(THREE.MathUtils.degToRad(17.5));
+      if (planKey !== `${W}x${H}` && it < 2.4) buildPlan(sx, sy);
+      const k = planEls.length ? drawPlan(it, sx, sy, projR) : 1;
+      const near = projR / planR;
+      blueU.uAlpha.value = ss(.22, .42, near) * (1 - ss(5.45, 6.05, it));
+      tileLines.visible = ringLines.visible = tileSparks.visible = blueU.uAlpha.value > 0;
+      blueU.uScan.value = -.3 + ss(3.7, 4.6, it) * 1.6;   // one bright sweep as we arrive
+      paperU.uPaper.value = ss(0, .5, it) * (1 - ss(5.25, 6, it));
+      paperU.uZoom.value = k; paperU.uZc.value.set(sx * renderer.getPixelRatio(), (H - sy) * renderer.getPixelRatio());
+      const po = ss(4.3, 4.6, it) * (1 - ss(4.85, 5.05, it));
+      saturn.updateMatrixWorld();
+      parts.forEach((el, i) => {
+        const p = off.copy(PART_AT[i]); if (i) p.y *= tileU.uSpread.value;
+        p.applyMatrix4(tilt.matrixWorld).project(camera);
+        let x = (p.x + 1) / 2 * W; const w = el.offsetWidth;   // keep the label on screen
+        x = i === 1 ? Math.max(x, w + 8) : Math.min(x, W - w - 8);
+        el.style.opacity = po; el.style.transform = `translate(${x}px,${(1 - p.y) / 2 * H}px)`;
+      });
+    }
+
+    // Objects stay where they are; the one behind us crumbles into dust, the one ahead gathers out of it.
+    const at = seg + u;
+    stops.forEach(({ stop, obj }, i) => {
+      const d = at - i;
+      let gone = Math.max(ss(.6, .95, d), ss(-.6, -.95, d));   // overlap: the next one gathers while the last is still leaving
+      if (i === 0 && INTRO) gone = Math.max(gone, 1 - fill);
+      setDissolve(obj, gone);
+      if (i === 0 && tileLines.visible) obj.visible = true;   // keep the blueprint lines while the clay is still hidden
+      if (i === 0) {
+        halo.material.uniforms.uO.value = 1 - gone; halo.visible = gone < .99;
+        const on = !reduce && it >= INTRO && (hasPtr || touching) && gone < .5 && performance.now() - lastMove < 1500;
+        ray.setFromCamera(ptr, camera); spin = updateRing(t, on, gone);
+      }
+      stop.visible = Math.abs(d) < 1.3;
+      obj.position.y = reduce ? 0 : Math.sin(t * .5 + i) * .06;
+    });
+    // Surroundings fade in as we arrive at their stop and out as we leave.
+    const wo = nearStop(at, 1);
+    world.material.opacity = wo; world.visible = atmosphere.visible = wo > 0; atmosphere.material.uniforms.uO.value = wo;
+    world.rotation.y = t * .004;
+    setDissolve(debris, 1 - nearStop(at, 2)); debris.rotation.y = Math.sin(t * .02) * .02;
+    setDissolve(belt, 1 - nearStop(at, 3)); belt.rotation.y = Math.sin(t * .03) * .05;
+    sunU.uO.value = nearStop(at, 4); sun.visible = sunU.uO.value > 0; sun.quaternion.copy(camera.quaternion);
+    // Extras
+    const ru = ss(.03, .62, ps);                                  // follows the scroll itself, so it launches while the view is still calm
+    const grow = 1 - ss(.78, 1, ru);                               // full size from the start (it begins off screen), shrinks away into the distance
+    rocket.visible = trail.visible = ru > 0 && grow > 0;
+    if (!reduce) updateWake(t, rocket.visible ? rocket.position : null, rdir);   // marks keep fading after the rocket has gone
+    if (rocket.visible) {
+      rocketPath.getPointAt(ru, rocket.position);
+      rocket.updateMatrixWorld(); rings.updateMatrixWorld();
+      ringU.uRR.value = 1.2 / saturn.scale.x;
+      rocket.quaternion.setFromUnitVectors(UP, rocketPath.getTangentAt(ru, rdir));
+      rocket.rotateY(t * .8); rocket.scale.setScalar(.7 * grow);
+      flame.scale.set(1, 1 + Math.sin(t * 31) * .12 + Math.sin(t * 17) * .08, 1); flameU.uT.value = t;
+      // Puffs sit back along the path, drifting and curling more the older they are.
+      for (let k = 0; k < TN; k++) {
+        const a = k / (TN - 1), pu = Math.max(0, ru - .004 - a * TL);
+        rocketPath.getPointAt(pu, tp);
+        const born = ss(0, .012, ru - a * TL);                     // puffs only exist where the rocket has already been
+        tp.x += Math.sin(a * 9 - t * .7 + k * .3) * a * a * .9; tp.y += Math.cos(a * 7 - t * .5 + k * .2) * a * a * .7 + a * a * .5;
+        trailPos.set(born > 0 ? [tp.x, tp.y, tp.z] : [0, -999, 0], k * 3);
+      }
+      tg.attributes.position.needsUpdate = true;
+      trailU.uT.value = t; trailU.uO.value = grow;
+    }
+    signals.children.forEach((r, i) => {                          // pulses out of the dish, every ~3 s
+      const ph = (t * .33 + i / 3) % 1;
+      r.position.z = ph * 2; r.scale.setScalar(.35 + ph * 1.5); r.material.opacity = ss(0, .08, ph) * (1 - ph) ** 2 * .6;
+    });
+    setDissolve(station, 1 - nearStop(at, 4)); wheel.rotation.y = t * .12; station.rotation.y = Math.sin(t * .07) * .25;
+    dockLight.visible = station.visible && (t % 2.2) < .25;
+    JOURNEY.forEach(({ mesh, stop, seed }) => {                   // drift, sway, and crumble in and out with their stop
+      setDissolve(mesh, 1 - nearStop(at, stop));
+      mesh.quaternion.copy(camera.quaternion); mesh.rotateZ(Math.sin(t * .25 + seed) * .14);
+    });
+    rings.rotation.y = t * .05 + spin; planet.rotation.y = t * .02 + spin;
+    const peel = ss(.03, .6, at);   // leaving Saturn: the ring pebbles loosen outward
+    tileU.uT.value = t; tileU.uSpread.value = it < INTRO ? .7 * ease(ss(4, 4.5, it)) * (1 - ease(ss(4.95, 5.55, it))) : 0;   // a gentler, quicker spread
+    pebbles.scale.setScalar(1 + peel * .4);
+    astronaut.quaternion.copy(camera.quaternion);
+    astronaut.rotateZ(Math.sin(t * .4) * .08); astronaut.position.y = Math.sin(t * .6) * .08;
+    satellite.rotation.y = Math.sin(t * .12) * 1.1; satellite.rotation.x = Math.sin(t * .3) * .06;   // turns slowly back and forth
+    rockA.rotation.set(t * .05, t * .07, 0); rockB.rotation.set(t * .04, -t * .03, -.9); rockC.rotation.set(-t * .03, t * .06, 0);
+    rocks.position.x = Math.sin(t * .15) * .2;
+    moon.rotation.y = Math.sin(t * .05) * .6; moon.rotation.x = .3;   // sways, keeping its craters in view
+
+    // Studio light rides with the camera so every angle is lit like the clay renders.
+    for (const [name, v] of Object.entries(LIGHT)) {
+      const l = lights[name];
+      l.target.position.copy(look); l.target.updateMatrixWorld();
+      l.position.copy(v).applyQuaternion(camera.quaternion).add(look);
+    }
+    keyView.value.copy(LIGHT.key).normalize();
+
+    dustU.uTime.value = t; dustU.uFocus.value = camera.position.distanceTo(look);
+    neb.uniforms.uTime.value = t;
+    neb.uniforms.uOff.value.set(aim.x * .01 + at * .08, at * .12);   // the smoke streams past as we travel
+    setEnv(at);
+
+    // Stir the flow trail with the cursor's speed, then let the smoke read it.
+    const mp = flowU.uPos.value, nx = ptr.x * .5 + .5, ny = ptr.y * .5 + .5, live = hasPtr || touching;
+    if (touching && !wasTouching) mp.set(nx, ny);   // a new press starts where the finger lands, not with a streak from the last one
+    wasTouching = touching;
+    if (live && mp.x > -1) flowU.uVel.value.set(nx - mp.x, ny - mp.y).multiplyScalar(20).clampLength(0, 1.5);
+    else flowU.uVel.value.set(0, 0);
+    if (live) mp.set(nx, ny);
+    flowU.uPrev.value = flowA.texture;
+    renderer.setRenderTarget(flowB); renderer.render(flowScene, bgCam); renderer.setRenderTarget(null);
+    [flowA, flowB] = [flowB, flowA];
+    neb.uniforms.uFlow.value = dustU.uFlow.value = flowA.texture;
+
+    if (!prevSet) { dustU.uPrev.value.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); prevSet = true; }
+    renderer.clear(); renderer.render(bgScene, bgCam); renderer.render(scene, camera);
+    if (BLOOM) bloom();
+    renderer.setRenderTarget(null);
+    dustU.uPrev.value.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);   // where things were, for next frame's streaks
+    // Sound follows the flight: the wind swells and brightens with the camera's speed.
+    const speed = camera.position.distanceTo(prevCam) / dt; prevCam.copy(camera.position);
+    // streaks only while the camera travels (scrolling); cursor tilt only turns it, so it never streaks
+    dustU.uStreak.value = it < INTRO || QS.get('streaks') === '0' ? 0 : ss(3, 14, speed) * .6;
+    if (ac && ac.state === 'running') {
+      const k = Math.min(1, speed / 22);
+      wind.gain.setTargetAtTime(k * .12, ac.currentTime, .25); windF.frequency.setTargetAtTime(300 + k * 1100, ac.currentTime, .3);
+    }
+    if (!canvas.classList.contains('on')) canvas.classList.add('on');
+  });
+}
+</script>
+</body>
+</html>

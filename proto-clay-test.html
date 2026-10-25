@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clay look test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Look test: Saturn and the moon built in code, judged against the Gemini clay renders below them. */
+  :root{--bg:#141a1f;--ink:#ece6de;--muted:#a9a39b;--accent:#d98c6a;--mono:'IBM Plex Mono',monospace}
+  ::selection{background:var(--accent);color:var(--bg)}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:12px;overflow:hidden}
+  canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+  .tag{position:fixed;top:24px;left:clamp(16px,5vw,80px);margin:0}
+  .tag span{color:var(--muted)}
+  .ref{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:flex-end;gap:20px;margin:0}
+  .ref img{height:clamp(70px,13vh,130px);filter:brightness(.84) saturate(.9)}
+  .ref figcaption{color:var(--muted);align-self:center;max-width:12ch}
+  @media (max-width:700px){.ref img{height:64px}.b .ref img{height:44px}.b .ref figcaption{display:none}}
+  .compare .ref{left:auto;right:4vw;bottom:auto;top:50%;transform:translateY(-50%);gap:3vw}
+  .compare .ref img{height:42vh}
+  .compare .ref figcaption{display:none}
+  .ref img[data-set=b],.b .ref img[data-set=a]{display:none}
+  .b .ref img[data-set=b]{display:block}
+  .b .ref img{height:clamp(50px,9vh,90px)}
+  .compare.b .ref{display:grid;grid-template-columns:repeat(2,auto);align-items:center;gap:2vw}
+  .compare.b .ref img{height:30vh}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<p class="tag">Clay look test <span>· Saturn and moon in 3D code</span></p>
+<figure class="ref">
+  <figcaption>Gemini renders, for comparison</figcaption>
+  <img data-set="a" src="/images/space/clay/astronaut-2.webp" alt="Clay astronaut, waving">
+  <img data-set="a" src="/images/space/clay/asteroid-1.webp" alt="Clay asteroid reference">
+  <img data-set="b" src="/images/space/clay/satellite.webp" alt="Clay satellite reference">
+  <img data-set="b" src="/images/space/clay/asteroid-1.webp" alt="Clay chipped asteroid reference">
+  <img data-set="b" src="/images/space/clay/asteroid-2.webp" alt="Clay long asteroid reference">
+  <img data-set="b" src="/images/space/clay/asteroid-3.webp" alt="Clay round asteroid reference">
+</figure>
+
+<script type="module">
+import * as THREE from 'three';
+import { keyView, saturn, rings, planet, moon, satellite, rocks, rockA, rockB, rockC, addLights } from './proto-clay-objects.js';
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const coarse = matchMedia('(pointer: coarse)').matches;
+const canvas = document.getElementById('gl');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, coarse ? 1.5 : 2));
+renderer.autoClear = false;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(30, 1, .1, 100);
+camera.position.z = 12;
+const { key } = addLights(scene);
+scene.add(saturn, moon, satellite, rocks);
+// ?set=b shows the satellite and asteroids instead of Saturn and the moon
+const setB = new URLSearchParams(location.search).get('set') === 'b';
+saturn.visible = moon.visible = !setB; satellite.visible = rocks.visible = setB;
+document.body.classList.toggle('b', setB);
+
+// ---------- Background: the dark smoke from proto-hero.html ----------
+const NOISE = `
+  #define OCT ${coarse ? 3 : 5}
+  float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3. - 2. * f);
+    return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y); }
+  float fbm(vec2 p){ float v = 0., a = .5; for (int i = 0; i < OCT; i++) { v += a * noise(p); p *= 2.02; a *= .5; } return v; }`;
+const bgScene = new THREE.Scene(), bgCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+const neb = new THREE.ShaderMaterial({
+  depthTest: false, depthWrite: false,
+  uniforms: { uRes: { value: new THREE.Vector2() }, uMouse: { value: new THREE.Vector2(.5, .5) }, uTime: { value: 0 } },
+  vertexShader: `void main(){ gl_Position = vec4(position.xy, 0., 1.); }`,
+  fragmentShader: `
+    uniform vec2 uRes, uMouse; uniform float uTime;
+    ${NOISE}
+    void main(){
+      vec2 uv = gl_FragCoord.xy / uRes, asp = vec2(uRes.x / uRes.y, 1.);
+      vec2 p = uv * asp * 1.5; float t = uTime * .012;
+      vec2 q = vec2(fbm(p + t), fbm(p + vec2(5.2, 1.3) - t));
+      vec2 r = vec2(fbm(p + 3. * q + vec2(1.7, 9.2) + t * 1.5), fbm(p + 3. * q + vec2(8.3, 2.8)));
+      float n = fbm(p + 3. * r), cloud = smoothstep(.34, .9, n), hue = smoothstep(.3, .8, r.x);
+      float dm = length((uv - uMouse) * asp), lamp = exp(-dm * dm * 7.);
+      float vig = smoothstep(1.3, .3, length((uv - .5) * vec2(1.25, 1.)));
+      vec3 d = vec3(.07, .09, .11) + cloud * mix(vec3(.08, .17, .21), vec3(.38, .20, .14), hue) + lamp * vec3(.20, .12, .07) * (.35 + cloud);
+      gl_FragColor = vec4(d * mix(.5, 1., vig), 1.);
+    }`
+});
+bgScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), neb));
+
+// ---------- Layout, mouse, loop ----------
+let W, H;
+const compare = new URLSearchParams(location.search).has('compare');   // ?compare: side by side with the Gemini renders
+document.body.classList.toggle('compare', compare);
+function layout() {
+  W = innerWidth; H = innerHeight;
+  renderer.setSize(W, H, false);
+  camera.aspect = W / H; camera.updateProjectionMatrix();
+  neb.uniforms.uRes.value.set(W * renderer.getPixelRatio(), H * renderer.getPixelRatio());
+  const vh = 2 * Math.tan(THREE.MathUtils.degToRad(15)) * 12, vw = vh * W / H;
+  const place = (o, x, y, s) => (o.position.set(x, y, 0), o.scale.setScalar(s));
+  if (setB) {
+    const [sx, sy, ss_, rx, ry, rs, gap] = compare ? [-vw * .27, vh * .17, vw * .05, -vw * .41, -vh * .22, vh * .085, vw * .15]
+      : W / H > 1 ? [-vw * .2, 0, vw * .05, vw * .1, 0, vh * .09, vw * .14] : [0, vh * .2, vw * .085, -vw * .3, -vh * .15, vw * .1, vw * .3];
+    place(satellite, sx, sy, ss_);
+    [rockA, rockB, rockC].forEach((r, i) => { r.position.set(rx + gap * i, ry, 0); r.scale.multiplyScalar(0).add(new THREE.Vector3(...[[1.25, .95, 1], [1.6, .82, .88], [1, 1, 1]][i]).multiplyScalar(rs)); });
+    return;
+  }
+  if (compare) { saturn.position.set(-vw * .34, 0, 0); saturn.scale.setScalar(vw * .058); moon.position.set(-vw * .1, 0, 0); moon.scale.setScalar(vh * .15); }
+  else if (W / H > 1) { saturn.position.set(-vw * .2, vh * .06, 0); saturn.scale.setScalar(Math.min(vw * .1, vh * .17)); moon.position.set(vw * .26, vh * .08, 0); moon.scale.setScalar(Math.min(vw * .1, vh * .2)); }
+  else { saturn.position.set(0, vh * .22, 0); saturn.scale.setScalar(vw * .17); moon.position.set(0, -vh * .12, 0); moon.scale.setScalar(vw * .26); }
+}
+layout(); addEventListener('resize', layout);
+const ptr = new THREE.Vector2(), aim = new THREE.Vector2();
+addEventListener('pointermove', e => ptr.set(e.clientX / W * 2 - 1, e.clientY / H * 2 - 1));
+
+renderer.setAnimationLoop(ms => {
+  const t = ms / 1000;
+  neb.uniforms.uTime.value = t;
+  if (!reduce) {
+    rings.rotation.y = t * .05;                 // ring turning slowly
+    planet.rotation.y = t * .02;
+    moon.rotation.y = t * .03; moon.rotation.x = .3;
+    satellite.rotation.y = t * .08; satellite.rotation.x = Math.sin(t * .3) * .06;   // slowly turning
+    rockA.rotation.set(t * .05, t * .07, 0); rockB.rotation.set(t * .04, -t * .03, -.9); rockC.rotation.set(-t * .03, t * .06, 0);
+    aim.lerp(ptr, .04);
+    camera.position.set(aim.x * .6, -aim.y * .4, 12); camera.lookAt(0, 0, 0);
+    neb.uniforms.uMouse.value.set(.5 + aim.x * .5, .5 - aim.y * .5);
+  }
+  camera.updateMatrixWorld(); keyView.value.copy(key.position).transformDirection(camera.matrixWorldInverse);
+  renderer.clear(); renderer.render(bgScene, bgCam); renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

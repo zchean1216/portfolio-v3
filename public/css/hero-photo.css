@@ -1,0 +1,15 @@
+/* HERO PHOTO SETTINGS
+   The photo sits in a frame. Width and height are independent; the image fills the frame
+   with object-fit: cover and crops to fit. Nothing else on the page changes these values. */
+:root {
+  --hero-photo-w: 80.5%;        /* frame width, % of the left column (40 to 100) */
+  --hero-photo-h: 38svh;        /* frame height, % of screen height (20 to 70) */
+  --hero-photo-x: 37%;          /* focus point X (0 to 100%) */
+  --hero-photo-y: 35%;          /* focus point Y (0 to 100%) */
+  --hero-photo-zoom: 1.00;      /* zoom inside the frame, 1.00 = 100% (1.00 to 2.00) */
+}
+
+/* Desktop: fill the column so there is no dead gutter before the comments column. */
+@media (min-width: 1024px) {
+  :root { --hero-photo-w: 100%; }
+}

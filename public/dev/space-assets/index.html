@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Space assets · review</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root { --sa-line: #d3c7b8; --sa-fill: #f7f3ed; --bg: #efebe5; --ink: #1f2b33; --muted: #4a4b4f; --rule: #c4b8ac; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: Archivo, sans-serif; }
+  a { color: #ab6a55; } a:hover { color: var(--ink); }
+  header { max-width: 1400px; margin: 0 auto; padding: 56px clamp(20px,4vw,64px) 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; }
+  h1 { margin: 0; font-weight: 800; font-stretch: 115%; text-transform: uppercase; letter-spacing: -.04em; font-size: clamp(32px,4vw,56px); line-height: .95; }
+  .mono { font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .14em; font-size: 11px; color: var(--muted); }
+  .grid { max-width: 1400px; margin: 0 auto; padding: 0 clamp(20px,4vw,64px) 80px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); grid-auto-flow: dense; gap: 20px; }
+  .card { border: 1px solid var(--rule); background: var(--bg); display: flex; flex-direction: column; }
+  .card.wide { grid-column: 1 / -1; }
+  .stage { flex: 1; min-height: 260px; padding: 32px; display: flex; align-items: center; justify-content: center; gap: 28px; }
+  .stage > svg { max-width: 100%; }
+  .name { border-top: 1px solid var(--rule); padding: 12px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  .name b { font-size: 15px; } .swatch { display: inline-flex; gap: 6px; align-items: center; }
+  .swatch i { width: 14px; height: 14px; border: 1px solid var(--rule); display: inline-block; }
+  html[data-theme="dark"] img[data-blend] { mix-blend-mode: screen; filter: url(#sa-whiten) invert(1); }
+  .pair { flex: 1; display: grid; grid-template-columns: 1fr 1fr; }
+  .card.wide .pair { grid-template-columns: 1fr; }
+  .stage.dark { background: #141a1f; --sa-line: #4a5660; --sa-fill: #1c242a; }
+  .stage img { opacity: 1; } /* full strength here so any hole or missing part is visible */
+  .card.wide .pair { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 1100px) { .card.wide .pair { grid-template-columns: 1fr; } }
+</style>
+<script src="../../js/space-assets.js?v=muz9yowb"></script>
+</head>
+<body>
+<header>
+  <div style="display:flex;flex-direction:column;gap:10px"><span class="mono">Review page · not linked from the site</span><h1>Space assets</h1></div>
+  <div class="mono" style="display:flex;gap:18px;flex-wrap:wrap"><span class="swatch"><i style="background:var(--sa-line)"></i>--sa-line #d3c7b8</span><span class="swatch"><i style="background:var(--sa-fill)"></i>--sa-fill #f7f3ed</span></div>
+</header>
+<main class="grid" id="grid"></main>
+<script>
+  var A = window.SpaceArt;
+  function row(dir, n, w, labels) { return '<div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:center">' + Array.from({ length: n }, function (_, i) { return '<figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:6px"><img src="../../images/space/' + dir + '/' + dir + '-' + (i + 1) + '.webp" alt="" style="display:block;width:' + w + 'px;height:auto"><span class="mono" style="font-size:9.5px">' + (labels ? labels[i] : (i + 1)) + '</span></figure>'; }).join('') + '</div>'; }
+  function one(src, w, label) { return '<figure style="margin:0;display:flex;flex-direction:column;align-items:center;gap:6px"><img src="../../images/space/' + src + '" alt="" style="display:block;width:' + w + 'px;height:auto"><span class="mono" style="font-size:9.5px">' + label + '</span></figure>'; }
+  var items = [
+    ['01', 'Ringed planet · angles 1-4 (2 = edge on)', row('planet', 4, 130), 'wide'],
+    ['02', 'Jupiter · spin frames 1-2 · Gas planet B · Gas planet C', '<div style="display:flex;flex-wrap:wrap;gap:18px;justify-content:center">' + one('jupiter/jupiter-1.webp', 110, 'Jupiter 1') + one('jupiter/jupiter-2.webp', 110, 'Jupiter 2') + one('jupiter/jupiter-3.webp', 110, 'Gas planet B') + one('jupiter/jupiter-4.webp', 110, 'Gas planet C') + '</div>', 'wide'],
+    ['03', 'Asteroid 1-4', row('asteroid', 4, 110), 'wide'],
+    ['04', 'Moon · phases (full, gibbous, half, crescent)', row('moon', 4, 110, ['Full', 'Gibbous', 'Half', 'Crescent']), 'wide'],
+    ['05', 'Satellite · angles 1-4', row('satellite', 4, 140), 'wide'],
+    ['06', 'Rocket · straight, tilt right, tilt left, boost', row('rocket', 4, 70, ['Straight', 'Right', 'Left', 'Boost']), 'wide'],
+    ['07', 'Comet · tail frames 1-4', row('comet', 4, 110), 'wide'],
+    ['08', 'Sparkle 4 point · Star 8 point · Mini planet · Sparkle cluster', '<div style="display:flex;flex-wrap:wrap;gap:22px;align-items:center;justify-content:center">' + one('deco/deco-1.webp', 70, 'Sparkle 4 pt') + one('deco/deco-2.webp', 90, 'Star 8 pt') + one('deco/deco-3.webp', 130, 'Mini planet') + one('deco/deco-4.webp', 80, 'Cluster') + '</div>', 'wide'],
+    ['09', 'Constellations · code drawn', '<div style="display:flex;flex-wrap:wrap;gap:28px;align-items:center;justify-content:center">' + [0, 1, 2, 3].map(function (i) { return '<div style="width:' + [130, 150, 190, 150][i] + 'px">' + A.constellation(i) + '</div>'; }).join('') + '</div>', 'wide'],
+    ['10', 'Dot stars', A.dotField(600, 300, 26, 11), 'wide'],
+    ['11', 'Moon horizon strip', '<img src="../../images/space/moon-ground.jpg" alt="" style="display:block;width:min(100%,1100px);height:auto">', 'wide']
+  ];
+  document.getElementById('grid').innerHTML = items.map(function (it) {
+    return '<figure class="card' + (it[3] ? ' ' + it[3] : '') + '" style="margin:0"><div class="pair"><div class="stage">' + it[2] + '</div><div class="stage dark">' + it[2] + '</div></div><figcaption class="name"><b>' + it[1] + '</b><span class="mono">' + it[0] + ' · light / dark</span></figcaption></figure>';
+  }).join('');
+</script>
+</body>
+</html>

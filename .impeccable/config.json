@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "proto-hero.html"
+        ],
+        "createdAt": "2026-10-23T06:53:27.392Z",
+        "reason": "user's brief asked for glow on hover (hover-only glows on tags, cursor, lit constellations)"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "proto-hero-v2.html"
+        ],
+        "createdAt": "2026-10-24T23:48:35.433Z",
+        "reason": "Claude decided: the flagged shadows are dark warm-brown (#2e160e) legibility shadows under text, not glows; follows owner's standing preference 'warm brown shadows, never black'"
+      }
+    ]
+  }
+}

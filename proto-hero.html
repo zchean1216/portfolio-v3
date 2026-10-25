@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hero prototype · Jayden Chia</title>
+<script>try { if (localStorage.getItem('pfx-theme') === 'light') document.documentElement.dataset.theme = 'light'; } catch (e) {}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!-- same Lenis build as index.html -->
+<script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js" integrity="sha384-eD5ubmuCcvTdCADWuSchJYE7wcj2nzNr0itbrh6w/KJyBiltSZ8w3VFRBSWu5YQ8" crossorigin="anonymous"></script>
+<style>
+  /* One world: matte clay objects in a lit nebula, labelled like a field guide, in rust and charcoal. */
+  :root{--bg:#ebe1d4;--ink:#1f2b33;--muted:#4a4b4f;--accent:#ab6a55;--knob:#f7cf5e;--mono:'IBM Plex Mono',monospace;
+    --grade:brightness(1) saturate(1) drop-shadow(10px 16px 18px rgba(70,45,28,.24));--ts:rgba(80,50,30,.22)}
+  html[data-theme="dark"]{--bg:#141a1f;--ink:#ece6de;--muted:#a9a39b;--accent:#d98c6a;--knob:#ece6de;
+    --grade:brightness(.84) saturate(.9) drop-shadow(-2px -3px 10px rgba(217,140,106,.32));--ts:rgba(0,0,0,.5)}
+  html.lenis,html.lenis body{height:auto}
+  .lenis.lenis-smooth{scroll-behavior:auto!important}
+  html{scrollbar-color:var(--accent) var(--bg);scrollbar-width:thin}
+  ::selection{background:var(--accent);color:var(--bg)}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Archivo,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:clip;transition:color .4s}
+  canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+  #gl{z-index:0} #c{z-index:1}
+
+  /* Cursor: a ring that grows over anything you can act on. */
+  @media (pointer:fine){html,button{cursor:none}}
+  .cur{position:fixed;left:0;top:0;width:22px;height:22px;margin:-11px 0 0 -11px;border:1.5px solid var(--ink);border-radius:50%;box-sizing:border-box;pointer-events:none;z-index:10;opacity:0;transition:opacity .3s,width .3s cubic-bezier(.2,.8,.2,1),height .3s cubic-bezier(.2,.8,.2,1),margin .3s cubic-bezier(.2,.8,.2,1),border-color .3s,background-color .3s,box-shadow .3s}
+  .cur.on{opacity:1}
+  .cur.hot{width:48px;height:48px;margin:-24px 0 0 -24px;border-color:var(--accent);background-color:color-mix(in srgb,var(--accent) 14%,transparent)}
+  html[data-theme="dark"] .cur.hot{box-shadow:0 0 20px color-mix(in srgb,var(--accent) 55%,transparent)}
+  @media (pointer:coarse){.cur{display:none}}
+
+  /* Clay art: one render per piece, graded per theme so the switch animates. */
+  .clay{position:fixed;left:0;top:0;pointer-events:none;z-index:2;will-change:transform;filter:var(--grade);transition:filter .6s ease}
+  .clay img{display:block;width:100%}
+  .astro{width:clamp(76px,7vw,118px)}
+  .astro img{animation:bob 7s ease-in-out infinite}
+  .sat{width:clamp(56px,5vw,84px)}
+  .rock{left:var(--x);top:var(--y);width:var(--w)}
+  .rock img{animation:spin var(--spin,90s) linear infinite}
+  .rock.far{opacity:.75}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-14px) rotate(4deg)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .grain{position:fixed;inset:-50%;z-index:4;pointer-events:none;opacity:.07;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");animation:grain .9s steps(5) infinite}
+  html[data-theme="light"] .grain{opacity:.08;mix-blend-mode:multiply}
+  @keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,-1%)}80%{transform:translate(3%,3%)}}
+
+  .stage{position:relative;z-index:3;height:200vh;pointer-events:none}
+  .pin{position:sticky;top:0;height:100vh;height:100svh}
+  .bar{position:absolute;top:24px;left:clamp(16px,5vw,80px);right:clamp(16px,5vw,80px);display:flex;justify-content:space-between;gap:16px;font-family:var(--mono);font-size:12px}
+  .bar p{margin:0}
+  .status{display:flex;align-items:center;gap:10px;color:var(--ink)}
+  .status i{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 var(--accent);animation:ping 2.4s ease-out infinite}
+  @keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent)}100%{box-shadow:0 0 0 10px transparent}}
+  .hint{color:var(--muted)}
+
+  /* Callouts: short facts pinned to the objects, like igloo's labelled igloo. */
+  .callout{position:fixed;left:0;top:0;z-index:3;margin:0;font-family:var(--mono);font-size:13px;line-height:1.4;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .5s}
+  .callout.on{opacity:1}
+  .callout b{font-weight:500;color:var(--accent);margin-right:10px}
+
+  .hero{position:absolute;left:clamp(16px,5vw,80px);right:clamp(16px,5vw,80px);bottom:clamp(40px,9vh,96px)}
+  h1{position:relative;margin:0;font-weight:800;font-stretch:115%;letter-spacing:-.045em;text-transform:uppercase;line-height:.9;white-space:nowrap;font-size:min(calc((100vw - 10vw) / 6.4),15vh);transform-origin:20% 80%;will-change:transform}
+  h1 .l{display:block;padding:.03em 0}
+  /* Letters: blur in one by one; near the cursor they widen and thicken along Archivo's own axes. */
+  .ch{display:inline-block;font-variation-settings:'wdth' var(--w,115),'wght' var(--g,800);text-shadow:var(--tx,8px) var(--ty,12px) 26px var(--ts);opacity:0;filter:blur(14px);transform:translateY(28%);animation:chIn 1.1s cubic-bezier(.16,1,.3,1) forwards;animation-delay:calc(.25s + var(--i) * .045s)}
+  @keyframes chIn{to{opacity:1;filter:blur(0);transform:none}}
+  .net{color:var(--accent)}
+  /* The O: a pill switch, moon + stars in dark, sun in light (as on the live site). */
+  .sw{font:inherit;pointer-events:auto;display:inline-block;vertical-align:baseline;width:1.2em;height:.72em;margin:0 .02em;padding:0;border:0;background:none;line-height:0;color:inherit;opacity:0;animation:chIn 1.1s cubic-bezier(.16,1,.3,1) .43s forwards}
+  .sw svg{display:block;overflow:visible;width:100%;height:100%}
+  .sw .knob{transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+  .sw .cut{transition:transform .4s cubic-bezier(.34,1.56,.64,1);transform:translate(24px,-24px);fill:var(--bg)}
+  .sw .stars{opacity:0;transition:opacity .35s ease .15s}
+  html[data-theme="dark"] .sw .knob{transform:translateX(48px)}
+  html[data-theme="dark"] .sw .cut{transform:none}
+  html[data-theme="dark"] .sw .stars{opacity:1}
+  .sw:focus-visible{outline:2px solid var(--accent);outline-offset:6px;border-radius:.4em}
+  .ring{position:relative;display:inline-block;isolation:isolate;margin:0 .04em}
+  .ring svg{position:absolute;left:50%;top:47%;width:.8em;height:.8em;transform:translate(-50%,-50%);overflow:visible;pointer-events:none}
+  .ring .back{z-index:-1}.ring .front{z-index:1}
+  .note{position:absolute;left:3.7em;top:-.1em;width:0;height:0;opacity:0;animation:fade .6s ease 1.8s forwards}
+  .note svg{position:absolute;left:-2px;bottom:0;overflow:visible}
+  .note path{stroke-dasharray:120;stroke-dashoffset:120;animation:draw .9s cubic-bezier(.65,0,.35,1) 1.9s forwards}
+  .note span{position:absolute;left:56px;bottom:30px;white-space:nowrap;font-family:var(--mono);font-weight:400;text-transform:none;letter-spacing:0;font-size:12px;line-height:1;color:var(--accent)}
+  @keyframes draw{to{stroke-dashoffset:0}} @keyframes fade{to{opacity:1}}
+
+  .meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 28px;margin-top:24px;opacity:0;animation:fade .6s ease 1.1s forwards}
+  .meta p{margin:0;font-size:clamp(16px,1.3vw,19px);font-weight:500;letter-spacing:-.01em}
+  .meta .facts{display:none;width:100%;font-family:var(--mono);font-size:12px;font-weight:400;color:var(--muted)}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;pointer-events:auto}
+  .tags button{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);background:none;border:1px solid var(--accent);border-radius:999px;padding:7px 13px;transition:background-color .25s,color .25s,box-shadow .25s}
+  .tags button:hover{background:var(--accent);color:var(--bg)}
+  html[data-theme="dark"] .tags button:hover{box-shadow:0 0 18px color-mix(in srgb,var(--accent) 50%,transparent)}
+  .tags button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+  .next{position:relative;z-index:3;padding:0 clamp(16px,5vw,80px) 22vh}
+  .next h2{margin:0;font-weight:800;font-stretch:115%;letter-spacing:-.04em;text-transform:uppercase;line-height:.92;font-size:clamp(40px,7vw,104px)}
+  .next p{margin:24px 0 0;max-width:44ch;font-size:clamp(16px,1.3vw,19px);line-height:1.5}
+
+  @media (max-width:767px){
+    h1{font-size:13.2vw}.note,.hint,.callout{display:none}.meta .facts{display:block}
+    .astro{width:18vw}.tags button{padding:10px 14px}
+    .rock.far,.rock.mid{display:none}.rock.near{--x:74vw!important;--y:36vh!important;--w:52px!important}
+  }
+  @media (pointer:coarse){.grain{animation:none}}
+  @media (prefers-reduced-motion:reduce){.clay img,.grain,.status i{animation:none}.ch,.sw{animation:none;opacity:1;filter:none;transform:none}.meta,.note{animation:none;opacity:1}.note path{animation:none;stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<canvas id="c" aria-hidden="true"></canvas>
+<div class="clay sat" id="sat" aria-hidden="true"><img src="/images/space/clay/satellite.webp" alt=""></div>
+<div class="clay astro" id="astro" aria-hidden="true"><img src="/images/space/clay/astronaut.webp" alt=""></div>
+<div class="clay rock near" data-depth="1.3" style="--x:66vw;--y:72vh;--w:clamp(70px,7vw,110px);--spin:120s" aria-hidden="true"><img src="/images/space/clay/asteroid-1.webp" alt=""></div>
+<div class="clay rock far" data-depth=".5" style="--x:89vw;--y:7vh;--w:clamp(34px,3vw,48px);--spin:70s" aria-hidden="true"><img src="/images/space/clay/asteroid-2.webp" alt=""></div>
+<div class="clay rock mid" data-depth=".9" style="--x:86vw;--y:80vh;--w:clamp(44px,4vw,64px);--spin:95s" aria-hidden="true"><img src="/images/space/clay/asteroid-3.webp" alt=""></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="cur" id="cur" aria-hidden="true"></div>
+<p class="callout" id="coSat"><b>Now</b><span data-decode>IT Engineer at Swyftx</span></p>
+<p class="callout" id="coAstro"><b>Me</b><span data-decode>From Malaysia, now in Melbourne</span></p>
+<main>
+  <section class="stage">
+    <div class="pin">
+      <div class="bar">
+        <p class="status"><i aria-hidden="true"></i><span data-decode>Open to work, any IT role</span></p>
+        <p class="hint" id="hint">Move to map the network. Click to scan it.</p>
+      </div>
+      <div class="hero">
+        <h1 aria-label="Network Security">
+          <span class="note" aria-hidden="true">
+            <svg width="54" height="40" viewBox="0 0 78 58" fill="none" stroke="currentColor" style="color:var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M72 6 C 52 2, 30 10, 22 26 C 17 36, 14 44, 8 52"/><path d="M4 42 L8 53 L18 47"/></svg>
+            <span id="note"></span>
+          </span>
+          <span class="l"><span class="net">Netw<button class="sw" type="button" role="switch" aria-label="Dark mode" id="sw"><svg viewBox="0 0 120 72" aria-hidden="true"><defs><clipPath id="swHole"><rect x="16" y="16" width="88" height="40" rx="20"/></clipPath></defs><rect x="8" y="8" width="104" height="56" rx="28" fill="none" stroke="currentColor" stroke-width="16"/><g class="stars" fill="var(--bg)"><circle cx="30" cy="27" r="2.6"/><circle cx="44" cy="45" r="2.1"/><circle cx="54" cy="26" r="1.7"/></g><g clip-path="url(#swHole)"><g class="knob"><circle cx="36" cy="36" r="13" fill="var(--knob)"/><circle class="cut" cx="45" cy="29" r="12"/></g></g></svg></button>rk</span></span>
+          <span class="l"><span>Secur<span class="ring">I<svg class="back" viewBox="-50 -50 100 100" aria-hidden="true"><g transform="rotate(-16)"><path d="M-46 0 A46 12 0 0 1 46 0" fill="none" stroke="var(--accent)" stroke-width="3.6" stroke-linecap="round"/></g></svg><svg class="front" viewBox="-50 -50 100 100" aria-hidden="true"><g transform="rotate(-16)"><path d="M46 0 A46 12 0 0 1 -46 0" fill="none" stroke="var(--accent)" stroke-width="3.6" stroke-linecap="round"/></g></svg></span>ty</span></span>
+        </h1>
+        <div class="meta">
+          <p>Jayden Chia, IT and security</p>
+          <div class="tags">
+            <button type="button">IT</button><button type="button">Security</button><button type="button">Cloud</button><button type="button">MIS</button><button type="button">Dev</button><button type="button">AI</button>
+          </div>
+          <p class="facts">IT Engineer at Swyftx. From Malaysia, now in Melbourne.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Placeholder so the scroll can be felt; the live site's sections follow here. -->
+  <section class="next">
+    <h2>Selected work</h2>
+    <p>Five case studies in networks, cloud and security. On the live site they continue from here.</p>
+  </section>
+</main>
+<script type="module">
+import * as THREE from 'three';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+gsap.registerPlugin(ScrollTrigger);
+
+const root = document.documentElement;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const coarse = matchMedia('(pointer: coarse)').matches;
+const mouse = { x: -999, y: -999 };                 // raw pointer
+const ptr = { x: 0, y: 0 };                          // smoothed offset from centre: one camera for every layer
+const toPX = gsap.quickTo(ptr, 'x', { duration: .9, ease: 'power3' }), toPY = gsap.quickTo(ptr, 'y', { duration: .9, ease: 'power3' });
+const scr = { p: 0, s: 0 };                          // scroll progress through the stage, raw and eased
+let W, H, small, dark = root.dataset.theme === 'dark' ? 1 : 0, darkT = dark, canvasHot = false, domHot = false;
+const sp = { x: 0, y: 0, r: 0 };                     // Saturn on screen, shared by every layer
+const tip = { x: 0, y: 0 };                          // the ring's left tip on screen: where the astronaut floats
+const clamp01 = v => Math.min(1, Math.max(0, v));
+const rand = (a, b) => a + Math.random() * (b - a);
+
+// ================= WebGL: nebula + Saturn =================
+const gl = document.getElementById('gl');
+const renderer = new THREE.WebGLRenderer({ canvas: gl, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, coarse ? 1.5 : 2));
+renderer.autoClear = false;
+const NOISE = `
+  #define OCT ${coarse ? 3 : 5}
+  float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3. - 2. * f);
+    return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y); }
+  float fbm(vec2 p){ float v = 0., a = .5; for (int i = 0; i < OCT; i++) { v += a * noise(p); p *= 2.02; a *= .5; } return v; }`;
+
+const bgScene = new THREE.Scene(), bgCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+const neb = new THREE.ShaderMaterial({
+  depthTest: false, depthWrite: false,
+  uniforms: { uRes: { value: new THREE.Vector2() }, uMouse: { value: new THREE.Vector2(.5, .5) }, uSun: { value: new THREE.Vector2(.75, .55) }, uSat: { value: new THREE.Vector2(.76, .6) }, uSatR: { value: .18 }, uOff: { value: new THREE.Vector2() }, uTime: { value: 0 }, uDark: { value: dark } },
+  vertexShader: `void main(){ gl_Position = vec4(position.xy, 0., 1.); }`,
+  fragmentShader: `
+    uniform vec2 uRes, uMouse, uSun, uSat, uOff; uniform float uTime, uDark, uSatR;
+    ${NOISE}
+    void main(){
+      vec2 uv = gl_FragCoord.xy / uRes, asp = vec2(uRes.x / uRes.y, 1.);
+      vec2 p = (uv + uOff) * asp * 1.5; float t = uTime * .012;
+      vec2 q = vec2(fbm(p + t), fbm(p + vec2(5.2, 1.3) - t));
+      vec2 r = vec2(fbm(p + 3. * q + vec2(1.7, 9.2) + t * 1.5), fbm(p + 3. * q + vec2(8.3, 2.8)));
+      float n = fbm(p + 3. * r), cloud = smoothstep(.34, .9, n), hue = smoothstep(.3, .8, r.x);
+      float dm = length((uv - uMouse) * asp), lamp = exp(-dm * dm * 7.);
+      float ds = length((uv - uSun) * asp), sun = exp(-ds * ds * 3.5);
+      float vig = smoothstep(1.3, .3, length((uv - .5) * vec2(1.25, 1.)));
+      vec3 d = vec3(.07, .09, .11) + cloud * mix(vec3(.08, .17, .21), vec3(.38, .20, .14), hue)
+             + lamp * vec3(.20, .12, .07) * (.35 + cloud) + sun * vec3(.2, .12, .07);
+      d *= mix(.5, 1., vig);
+      // Daylight nebula: the same drifting smoke as the night sky, recoloured peach and dusty teal on warm paper.
+      // Clouds thin out behind the headline (lower left) so the type keeps its contrast.
+      float lk = length((uv - vec2(0., 1.05)) * asp);
+      float textZone = smoothstep(.75, .45, uv.x) * smoothstep(.5, .3, uv.y);
+      vec3 l = mix(vec3(.965, .93, .88), vec3(.87, .78, .69), smoothstep(.15, 1.7, lk));
+      l = mix(l, mix(vec3(.91, .68, .56), vec3(.62, .72, .74), hue), cloud * .9 * (1. - textZone * .7));
+      l += lamp * vec3(.05, .035, .02) + sun * vec3(.05, .035, .015);
+      vec2 so = (uv - uSat) * asp - vec2(uSatR * .45, -uSatR * .55);
+      so = vec2(cos(.45) * so.x - sin(.45) * so.y, sin(.45) * so.x + cos(.45) * so.y);   // along the ring's tilt
+      so.x /= 1.9;
+      l -= exp(-dot(so, so) / (uSatR * uSatR * 1.6)) * vec3(.16, .135, .11);              // Saturn's soft shadow
+      l = mix(vec3(.70, .58, .48), l, mix(.6, 1., vig));
+      gl_FragColor = vec4(mix(l, d, uDark), 1.);
+    }`
+});
+bgScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), neb));
+
+const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(35, 1, .1, 100);
+camera.position.z = 10;
+const L = new THREE.Vector3(-1, .55, .7).normalize(), Ll = new THREE.Vector3();
+const shared = { uL: { value: L }, uLl: { value: Ll }, uDark: { value: dark }, uTime: { value: 0 }, uRim: { value: 1 } };
+// Matte palette from the page: cream, sand, rust; the shadow side falls to the sky colour, not to black.
+const PAL = `
+  vec3 c1 = mix(vec3(.93, .89, .83), vec3(.89, .84, .76), uDark);
+  vec3 c2 = mix(vec3(.78, .70, .61), vec3(.70, .60, .51), uDark);
+  vec3 c3 = mix(vec3(.67, .45, .36), vec3(.62, .40, .31), uDark);
+  vec3 shade = mix(vec3(.19, .23, .26), vec3(.075, .095, .115), uDark);
+  vec3 rimC = mix(vec3(.67, .42, .33), vec3(.85, .55, .42), uDark);`;
+const planet = new THREE.Mesh(new THREE.SphereGeometry(1, 128, 96), new THREE.ShaderMaterial({
+  uniforms: shared,
+  vertexShader: `varying vec3 vP, vN, vW;
+    void main(){ vP = position; vN = normalize(mat3(modelMatrix) * normal); vW = (modelMatrix * vec4(position, 1.)).xyz;
+      gl_Position = projectionMatrix * viewMatrix * vec4(vW, 1.); }`,
+  fragmentShader: `uniform vec3 uL, uLl; uniform float uDark, uTime, uRim; varying vec3 vP, vN, vW;
+    ${NOISE}
+    void main(){
+      ${PAL}
+      float lon = atan(vP.z, vP.x) + uTime * .03;
+      float b = vP.y + (noise(vec2(lon * 3., vP.y * 14.)) - .5) * .06 + (noise(vec2(lon * 9., vP.y * 40.)) - .5) * .015;
+      float bands = sin(b * 21.) * .5 + .5, fine = sin(b * 63. + 1.) * .5 + .5;
+      vec3 alb = mix(c1, c2, smoothstep(.3, 1., bands) * .55);
+      alb = mix(alb, c3, smoothstep(.8, 1., fine) * .2);
+      vec3 N = normalize(vN), V = normalize(cameraPosition - vW);
+      float nl = dot(N, uL), diff = smoothstep(-.15, .7, nl);
+      float tt = -vP.y / uLl.y; vec3 h = vP + uLl * tt; float rr = length(h.xz);
+      if (tt > 0. && rr > 1.35 && rr < 2.35) diff *= .45;                         // ring shadow band
+      vec3 col = mix(shade, alb * (.88 + .14 * diff), diff);
+      float rim = pow(1. - max(dot(N, V), 0.), 2.6) * smoothstep(-.4, .5, nl);
+      col += rimC * rim * .8 * uRim;
+      gl_FragColor = vec4(col, 1.);
+    }`
+}));
+const ring = new THREE.Mesh(new THREE.RingGeometry(1.35, 2.35, 256, 1), new THREE.ShaderMaterial({
+  uniforms: shared, transparent: true, side: THREE.DoubleSide, depthWrite: false,
+  vertexShader: `varying vec3 vP; void main(){ vP = vec3(position.x, 0., -position.y); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
+  fragmentShader: `uniform vec3 uLl; uniform float uDark; varying vec3 vP;
+    ${NOISE}
+    void main(){
+      ${PAL}
+      float r = length(vP.xz), t = (r - 1.35) / 1.;
+      float d = noise(vec2(t * 90., .5)) * .4 + noise(vec2(t * 22., 3.)) * .35 + (sin(t * 140.) * .5 + .5) * .25;
+      float a = smoothstep(0., .03, t) * smoothstep(1., .94, t) * (.3 + .7 * d);
+      a *= 1. - .9 * smoothstep(.03, 0., abs(t - .62));                            // Cassini gap
+      float lit = .5 + .5 * abs(uLl.y);
+      if (dot(vP, uLl) < 0. && length(cross(vP, uLl)) < 1.) lit *= .25;            // planet's shadow on the ring
+      vec3 base = mix(mix(vec3(.52, .44, .38), vec3(.72, .64, .56), d), mix(c2, c1, d), uDark);
+      gl_FragColor = vec4(mix(shade, base, lit), a * .92);
+    }`
+}));
+ring.rotation.x = -Math.PI / 2;
+const saturn = new THREE.Group(), body = new THREE.Group();
+body.add(planet, ring);
+saturn.add(body);
+body.rotation.set(.38, 0, -.36);
+scene.add(saturn);
+const base = { x: 0, y: 0, s: 1 }, px2w = () => 2 * Math.tan(THREE.MathUtils.degToRad(17.5)) * 10 / H;
+
+function layoutGL() {
+  renderer.setSize(W, H, false);
+  camera.aspect = W / H; camera.updateProjectionMatrix();
+  neb.uniforms.uRes.value.set(W * renderer.getPixelRatio(), H * renderer.getPixelRatio());
+  const k = px2w();
+  const c = small ? { x: W * .56, y: H * .19, r: W * .15 } : { x: W * .76, y: H * .4, r: H * .18 };
+  base.x = (c.x - W / 2) * k; base.y = (H / 2 - c.y) * k; base.s = c.r * k;
+}
+const v3 = new THREE.Vector3(), q4 = new THREE.Quaternion();
+const toScreen = v => { v.project(camera); return { x: (v.x + 1) / 2 * W, y: (1 - v.y) / 2 * H }; };
+function renderGL(t) {
+  darkT += (dark - darkT) * (reduce ? 1 : .06);
+  shared.uDark.value = neb.uniforms.uDark.value = darkT;
+  shared.uTime.value = neb.uniforms.uTime.value = t / 1000;
+  shared.uRim.value += ((canvasHot ? 2.1 : 1) - shared.uRim.value) * .1;
+  if (mouse.x > 0) neb.uniforms.uMouse.value.lerp(new THREE.Vector2(mouse.x / W, 1 - mouse.y / H), .08);
+  neb.uniforms.uOff.value.set(ptr.x / W * .01, -ptr.y / H * .01);
+  const k = px2w();
+  // Parallax (Saturn sits nearest), plus the scroll pulls the camera back and lets Saturn drift up and left.
+  saturn.position.set(base.x - ptr.x * .08 * k - scr.s * base.s * 1.2, base.y + ptr.y * .08 * k + scr.s * base.s * .8 + Math.sin(t * .0007) * .03, 0);
+  saturn.scale.setScalar(base.s);
+  camera.position.z = 10 + scr.s * 5;
+  body.rotation.y = ptr.x / W * .5;
+  body.rotation.x = .38 + ptr.y / H * .25 + scr.s * .25;
+  body.updateMatrixWorld();
+  Ll.copy(L).applyQuaternion(body.getWorldQuaternion(q4).invert()).normalize();
+  // Where Saturn and its ring tip land on screen, for the stars behind it, the satellite, the astronaut and the callouts.
+  Object.assign(sp, toScreen(v3.copy(saturn.position)));
+  sp.r = Math.abs(toScreen(v3.set(saturn.position.x + base.s, saturn.position.y, 0)).x - sp.x);
+  Object.assign(tip, toScreen(body.localToWorld(v3.set(-2.3, 0, 0))));
+  neb.uniforms.uSun.value.set(sp.x / W - .06, 1 - sp.y / H + .04);
+  neb.uniforms.uSat.value.set(sp.x / W, 1 - sp.y / H); neb.uniforms.uSatR.value = sp.r / H;
+  renderer.clear(); renderer.render(bgScene, bgCam); renderer.render(scene, camera);
+}
+
+// ================= Canvas 2D: star network, callout leaders, comet =================
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const hexRGB = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${clamp01(a)})`;
+const mixRGB = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
+const cometHead = new Image(); cometHead.src = '/images/space/clay/asteroid-3.webp';
+let stars = [], bokeh = [], scans = [], comet = null, nextComet = 3000, trail = [], col = {}, frameNo = 0, start = null;
+function readColours() {
+  const s = getComputedStyle(root);
+  col = { ink: s.getPropertyValue('--ink').trim(), accent: s.getPropertyValue('--accent').trim() };
+  col.inkRGB = hexRGB(col.ink); col.accRGB = hexRGB(col.accent);
+}
+function linkNeighbours() {
+  const reach = Math.min(W, H) * .13;                // each star links to its 3 nearest: a map, not a mesh
+  stars.forEach((a, i) => {
+    a.nb = stars.map((b, j) => [j, Math.hypot(a.x - b.x, a.y - b.y)])
+      .filter(([j, d]) => j > i && d < reach).sort((p, q) => p[1] - q[1]).slice(0, 3).map(([j]) => j);
+  });
+}
+function layout2D() {
+  const DPR = Math.min(devicePixelRatio, 2);
+  cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const text = document.querySelector('.hero').getBoundingClientRect();
+  const inText = (x, y) => x > text.left && x < text.right && y > text.top && y < text.bottom;
+  stars = [];
+  for (let i = 0, n = Math.round(W * H / 5200 * (small || coarse ? .4 : 1)); i < n; i++) {
+    const x = rand(0, W), y = rand(0, H), a = rand(0, 6.283), v = reduce ? 0 : rand(.02, .08);
+    stars.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: Math.random() < .08 ? rand(1.6, 2.4) : rand(.5, 1.3), pf: rand(.008, .045), ph: rand(0, 6.3), act: 0, dim: inText(x, y) ? .3 : 1 });
+  }
+  bokeh = small || coarse ? [] : Array.from({ length: 8 }, () => ({ x: rand(0, W), y: rand(0, H), r: rand(18, 70), a: rand(.04, .09), ph: rand(0, 6.3) }));
+  linkNeighbours();
+}
+function line(a, b, bow) {                           // a slight bow, fixed per pair
+  const mx = (a.px + b.px) / 2, my = (a.py + b.py) / 2, dx = b.px - a.px, dy = b.py - a.py;
+  ctx.beginPath(); ctx.moveTo(a.px, a.py); ctx.quadraticCurveTo(mx - dy * bow, my + dx * bow, b.px, b.py); ctx.stroke();
+}
+// The satellite's orbit: wider than the ring and tilted the other way, so it only crosses the ring twice.
+const ORB = { rx: 2.9, ry: 1.05, rot: .44 };
+function orbitPt(a) {
+  const ex = Math.cos(a) * sp.r * ORB.rx, ey = Math.sin(a) * sp.r * ORB.ry, c = Math.cos(ORB.rot), s = Math.sin(ORB.rot);
+  return { x: sp.x + ex * c - ey * s, y: sp.y + ex * s + ey * c };
+}
+
+// Callouts: a pulsing pin on the object, a leader that draws itself, the label at the end.
+const callouts = [
+  { el: document.getElementById('coSat'), at: () => ({ x: sp.x - sp.r * .45, y: sp.y - sp.r * .6 }), to: a => ({ x: a.x - sp.r * .2, y: a.y - sp.r * .95 }), side: 'above', delay: 1700 },
+  { el: document.getElementById('coAstro'), at: () => astroCentre, to: a => ({ x: a.x - 90, y: a.y + 40 }), side: 'left', delay: 2100 },
+];
+let astroCentre = { x: 0, y: 0 };
+function renderCallouts(t, age, fade) {
+  if (small) return;
+  for (const c of callouts) {
+    const a = c.at(), b = c.to(a), p = reduce ? 1 : clamp01((age - c.delay) / 700), f = p * fade;
+    if (p > 0 && !c.el.classList.contains('on')) { c.el.classList.add('on'); decode(c.el.querySelector('[data-decode]')); }
+    const w = c.el.offsetWidth, h = c.el.offsetHeight;
+    const lx = c.side === 'left' ? b.x - w - 10 : b.x - w / 2, ly = c.side === 'left' ? b.y - h / 2 : b.y - h - 6;
+    c.el.style.transform = `translate(${lx}px, ${ly}px)`; c.el.style.opacity = fade;
+    const e = { x: a.x + (b.x - a.x) * p, y: a.y + (b.y - a.y) * p };
+    ctx.globalAlpha = f * .7; ctx.strokeStyle = col.ink; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(e.x, e.y); ctx.stroke();
+    const pulse = reduce ? 0 : (t * .0012 + c.delay) % 1;
+    ctx.globalAlpha = f * (1 - pulse) * .6; ctx.strokeStyle = col.accent;
+    ctx.beginPath(); ctx.arc(a.x, a.y, 4 + pulse * 12, 0, 6.283); ctx.stroke();
+    ctx.globalAlpha = f; ctx.fillStyle = col.accent;
+    if (darkT > .5) { ctx.shadowColor = col.accent; ctx.shadowBlur = 10; }
+    ctx.beginPath(); ctx.arc(a.x, a.y, 3.5, 0, 6.283); ctx.fill(); ctx.shadowBlur = 0;
+  }
+}
+
+function render2D(t) {
+  ctx.clearRect(0, 0, W, H);
+  if (start === null) start = t;
+  const age = reduce ? 1e9 : t - start, R = Math.min(W, H) * .2, glow = darkT > .5;
+  const fade = clamp01(1 - scr.s * 1.4);             // the hero's labels fade as you scroll into the page
+  scans = scans.filter(s => (s.r += Math.max(W, H) * .012) < Math.hypot(W, H));
+  for (const s of stars) {
+    s.x = (s.x + s.vx + W) % W; s.y = (s.y + s.vy + H) % H;
+    s.px = s.x - ptr.x * s.pf; s.py = s.y - ptr.y * s.pf - scr.s * H * s.pf * 6;
+    let near = Math.max(0, 1 - Math.hypot(s.px - mouse.x, s.py - mouse.y) / R);
+    for (const sc of scans) if (Math.abs(Math.hypot(s.px - sc.x, s.py - sc.y) - sc.r) < 24) near = 1;
+    s.act = Math.max(near, s.act * .965);
+  }
+  if (++frameNo % 90 === 0) linkNeighbours();
+  canvasHot = Math.hypot(mouse.x - sp.x, mouse.y - sp.y) < sp.r * 1.1;
+
+  ctx.lineCap = 'round'; ctx.strokeStyle = col.ink;
+  // Orbit hairline; the far half hides behind the planet.
+  ctx.lineWidth = .8; ctx.globalAlpha = glow ? .16 : .22;
+  ctx.beginPath();
+  for (let i = 0, pen = false; i <= 160; i++) {
+    const a = i / 160 * 6.283, o = orbitPt(a), hidden = Math.sin(a) < 0 && Math.hypot(o.x - sp.x, o.y - sp.y) < sp.r;
+    if (hidden) pen = false; else if (pen) ctx.lineTo(o.x, o.y); else { ctx.moveTo(o.x, o.y); pen = true; }
+  }
+  ctx.stroke();
+  for (const sc of scans) {
+    ctx.globalAlpha = .45 * (1 - sc.r / Math.hypot(W, H)); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(sc.x, sc.y, sc.r, 0, 6.283); ctx.stroke();
+  }
+  // The network your cursor traces: links warm from ink to rust and glow, then fade like light.
+  for (let i = 0; i < stars.length; i++) {
+    const a = stars[i]; if (a.act < .03) continue;
+    for (const j of a.nb) {
+      const b = stars[j], k = Math.min(a.act, b.act); if (k < .03) continue;
+      ctx.globalAlpha = k * .6 * Math.min(a.dim, b.dim); ctx.lineWidth = .6 + k * .7;
+      ctx.strokeStyle = rgba(mixRGB(col.inkRGB, col.accRGB, k), 1);
+      if (glow && k > .5) { ctx.shadowColor = col.accent; ctx.shadowBlur = 8 * k; }
+      line(a, b, ((i * 7 + j * 13) % 9 - 4) * .012);
+      ctx.shadowBlur = 0;
+    }
+  }
+  for (const s of stars) {
+    if (Math.hypot(s.px - sp.x, s.py - sp.y) < sp.r * 1.02) continue;   // behind the planet
+    const tw = reduce ? 1 : .6 + .4 * Math.sin(t * .0015 + s.ph) ** 3;
+    ctx.globalAlpha = Math.min(1, (.35 + s.pf * 14) * tw * s.dim + s.act * .5);
+    ctx.fillStyle = s.act > .3 ? rgba(mixRGB(col.inkRGB, col.accRGB, s.act), 1) : col.ink;
+    if (glow && (s.r > 1.6 || s.act > .5)) { ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 6 + s.act * 8; }
+    ctx.beginPath(); ctx.arc(s.px, s.py, s.r + s.act * 1.1, 0, 6.283); ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+  renderCallouts(t, age, fade);
+
+  // Comet: drifts slowly across the upper half, clear of Saturn and the headline, with a little parallax.
+  if (!reduce && !comet && t - start > nextComet) {
+    for (let i = 0; i < 8; i++) {
+      const a = rand(-.4, -.2), y0 = rand(.25, .5) * H, dx = Math.cos(a), dy = Math.sin(a);
+      comet = { x: -40, y: y0, dx, dy, v: W * 1.15 / rand(14000, 18000), b: t, rot: rand(0, 6.28) };
+      if (Math.abs((sp.x + 40) * dy - (sp.y - y0) * dx) > sp.r * 2.6) break;   // its line passes well clear of the planet
+    }
+  }
+  let hx, hy, cf = 0;
+  if (comet) {
+    const d = (t - comet.b) * comet.v;
+    hx = comet.x + comet.dx * d - ptr.x * .06; hy = comet.y + comet.dy * d - ptr.y * .06;
+    cf = clamp01((t - comet.b) / 1200) * clamp01((W + 40 - hx) / 220) * clamp01((hy + 40) / 160);
+    if (hx > W + 60 || hy < -60) { comet = null; nextComet = t - start + rand(5000, 10000); }
+    else for (let i = 0; i < 3; i++) trail.push({   // particles leave the head and drift back, away from travel
+      x: hx + rand(-3, 3), y: hy + rand(-3, 3), vx: -comet.dx * rand(.15, .6) + rand(-.12, .12), vy: -comet.dy * rand(.15, .6) + rand(-.12, .12),
+      b: t, life: rand(900, 1900), r: rand(.8, 2.4), f: cf });
+  }
+  trail = trail.filter(q => t - q.b < q.life);
+  if (glow) ctx.globalCompositeOperation = 'lighter';
+  for (const q of trail) {
+    const k = (t - q.b) / q.life;
+    q.x += q.vx; q.y += q.vy;
+    ctx.globalAlpha = (1 - k) ** 1.6 * q.f * (glow ? .8 : .65);
+    ctx.fillStyle = rgba(mixRGB(col.accRGB, col.inkRGB, glow ? k * .5 : 0), 1);
+    ctx.beginPath(); ctx.arc(q.x, q.y, q.r * (1 - k * .6), 0, 6.283); ctx.fill();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+  if (comet && cf > 0) {
+    const coma = ctx.createRadialGradient(hx, hy, 0, hx, hy, 30);   // soft glow round the head
+    coma.addColorStop(0, rgba(col.accRGB, glow ? .4 : .22)); coma.addColorStop(1, rgba(col.accRGB, 0));
+    ctx.globalAlpha = cf; ctx.fillStyle = coma; ctx.beginPath(); ctx.arc(hx, hy, 30, 0, 6.283); ctx.fill();
+    if (cometHead.complete && cometHead.naturalWidth) {
+      const sz = 30;
+      ctx.save(); ctx.translate(hx, hy); ctx.rotate(comet.rot + (t - comet.b) * .0004); ctx.filter = glow ? 'brightness(.85)' : 'none';
+      ctx.drawImage(cometHead, -sz / 2, -sz / 2, sz, sz); ctx.restore();
+    }
+  }
+  if (glow) for (const b of bokeh) {                   // out-of-focus foreground stars, dark sky only
+    const x = b.x - ptr.x * .12, y = b.y - ptr.y * .12 + (reduce ? 0 : Math.sin(t * .0003 + b.ph) * 10) - scr.s * H * .5;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, b.r);
+    g.addColorStop(0, col.ink); g.addColorStop(.55, col.ink); g.addColorStop(1, 'transparent');
+    ctx.globalAlpha = b.a * clamp01(darkT * 2 - 1); ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, b.r, 0, 6.283); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ================= Clay objects (DOM) =================
+const sat = document.getElementById('sat'), astro = document.getElementById('astro'), depthEls = [...document.querySelectorAll('[data-depth]')];
+function renderForms(t) {
+  for (const el of depthEls) {
+    const d = +el.dataset.depth;
+    el.style.transform = `translate(${-ptr.x * d * .03}px, ${-ptr.y * d * .03 - scr.s * H * .22 * d}px)`;
+  }
+  // The astronaut floats just off the ring's left tip, so it travels with Saturn.
+  const aw = astro.offsetWidth, ah = astro.offsetHeight;
+  astroCentre = small ? { x: W * .2, y: H * .42 } : { x: tip.x - aw * .55, y: tip.y - ah * .55 };
+  astro.style.transform = `translate(${astroCentre.x - aw / 2}px, ${astroCentre.y - ah / 2}px)`;
+  const oa = reduce ? 2.4 : t * .0003, front = Math.sin(oa) > 0;   // the satellite rides its own orbit
+  const { x, y } = orbitPt(oa);
+  sat.style.opacity = !front && Math.hypot(x - sp.x, y - sp.y) < sp.r ? 0 : front ? 1 : .6;
+  sat.style.transform = `translate(${x - sat.offsetWidth / 2}px, ${y - sat.offsetHeight / 2}px) scale(${front ? 1 : .7}) rotate(${Math.cos(oa) * 18}deg)`;
+}
+
+// ================= Headline: per-letter reveal, variable-font pressure, 3D tilt =================
+const h1 = document.querySelector('h1'), chars = [];
+(function splitLetters() {
+  const walk = document.createTreeWalker(h1, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement.closest('.note') || !n.textContent.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+  const nodes = []; while (walk.nextNode()) nodes.push(walk.currentNode);
+  let i = 0;
+  for (const n of nodes) {
+    const frag = document.createDocumentFragment();
+    for (const c of n.textContent) {
+      const s = document.createElement('span'); s.className = 'ch'; s.textContent = c; s.style.setProperty('--i', i++);
+      s.setAttribute('aria-hidden', 'true'); frag.appendChild(s); chars.push({ el: s, w: 115, g: 800, cx: 0, cy: 0 });
+    }
+    n.replaceWith(frag);
+  }
+})();
+function measureChars() { for (const c of chars) { const r = c.el.getBoundingClientRect(); c.cx = r.left + r.width / 2; c.cy = r.top + r.height / 2; } }
+function renderHeadline() {
+  if (reduce) return;
+  for (const c of chars) {                            // letters near the cursor widen and thicken
+    const k = clamp01(1 - Math.hypot(mouse.x - c.cx, mouse.y - c.cy) / 260) ** 2;
+    c.w += (115 + 10 * k - c.w) * .15; c.g += (800 + 100 * k - c.g) * .15;
+    c.el.style.setProperty('--w', c.w.toFixed(1)); c.el.style.setProperty('--g', c.g.toFixed(0));
+  }
+  // A slight tilt toward the cursor; the soft shadow slides the other way, as if lit from a fixed light.
+  h1.style.transform = `perspective(1100px) rotateX(${(-ptr.y / H * 6).toFixed(2)}deg) rotateY(${(ptr.x / W * 8).toFixed(2)}deg)`;
+  h1.style.setProperty('--tx', `${(8 - ptr.x / W * 14).toFixed(1)}px`);
+  h1.style.setProperty('--ty', `${(12 - ptr.y / H * 14).toFixed(1)}px`);
+}
+
+// Text decode: characters scramble, then settle left to right, like a terminal readout.
+const GLYPHS = '/\\\\|-_<>[]01#*';
+function decode(el) {
+  if (!el || reduce) return;
+  const final = el.dataset.final || (el.dataset.final = el.textContent);
+  let n = 0;
+  const id = setInterval(() => {
+    n += .6;
+    el.textContent = [...final].map((c, i) => c === ' ' || i < n ? c : GLYPHS[(Math.random() * GLYPHS.length) | 0]).join('');
+    if (n >= final.length) { el.textContent = final; clearInterval(id); }
+  }, 28);
+}
+
+// ================= Loop, cursor, scroll =================
+const cur = document.getElementById('cur');
+const curX = gsap.quickTo(cur, 'x', { duration: .25, ease: 'power3' }), curY = gsap.quickTo(cur, 'y', { duration: .25, ease: 'power3' });
+const perf = { n: 0, sum: 0, last: 0, done: false };
+function frame(t) {
+  if (!perf.done && perf.last) {                     // if the first two seconds run slow, drop resolution and bokeh
+    perf.sum += t - perf.last;
+    if (++perf.n === 120) {
+      perf.done = true;
+      if (perf.sum / perf.n > 24 && renderer.getPixelRatio() > 1) { renderer.setPixelRatio(1); layoutGL(); bokeh = []; }
+    }
+  }
+  perf.last = t;
+  scr.s += (scr.p - scr.s) * (reduce ? 1 : .12);
+  renderGL(t); renderForms(t); render2D(t); renderHeadline();
+  cur.classList.toggle('hot', domHot || canvasHot);
+}
+window.__frame = frame; window.__mouse = mouse; window.__comet = () => { comet = null; nextComet = -1; };   // for screenshots
+function layout() { W = innerWidth; H = innerHeight; small = W < 768; layoutGL(); layout2D(); measureChars(); }
+
+const sw = document.getElementById('sw');
+let swNear = false;
+addEventListener('pointermove', e => {
+  mouse.x = e.clientX; mouse.y = e.clientY;
+  if (!reduce) { toPX(e.clientX - W / 2); toPY(e.clientY - H / 2); }
+  if (e.pointerType === 'mouse') { curX(e.clientX); curY(e.clientY); cur.classList.add('on'); }
+  domHot = !!e.target.closest('button');
+  // The switch leans toward the cursor when it comes close.
+  const r = sw.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, near = Math.hypot(e.clientX - cx, e.clientY - cy) < 90;
+  if (!reduce && near) gsap.to(sw, { x: (e.clientX - cx) * .15, y: (e.clientY - cy) * .15, duration: .4, ease: 'power3' });
+  else if (swNear) gsap.to(sw, { x: 0, y: 0, duration: .7, ease: 'elastic.out(1, .5)' });
+  swNear = near;
+  if (reduce) frame(performance.now());
+});
+addEventListener('pointerdown', e => { if (!e.target.closest('button, .next')) scans.push({ x: e.clientX, y: e.clientY, r: 0 }); });
+document.addEventListener('pointerleave', () => { mouse.x = mouse.y = -999; cur.classList.remove('on'); });
+addEventListener('resize', () => { layout(); ScrollTrigger.refresh(); if (reduce) frame(performance.now()); });
+
+// Pills lean toward the cursor and spring back.
+document.querySelectorAll('.tags button').forEach(b => {
+  b.addEventListener('pointermove', e => { if (reduce) return; const r = b.getBoundingClientRect(); gsap.to(b, { x: (e.clientX - r.left - r.width / 2) * .3, y: (e.clientY - r.top - r.height / 2) * .4, duration: .3, ease: 'power3' }); });
+  b.addEventListener('pointerleave', () => gsap.to(b, { x: 0, y: 0, duration: .6, ease: 'elastic.out(1, .5)' }));
+});
+if (coarse) document.getElementById('hint').textContent = 'Tap the sky to scan.';
+
+const note = document.getElementById('note');
+function syncTheme() {
+  dark = root.dataset.theme === 'dark' ? 1 : 0;
+  sw.setAttribute('aria-checked', !!dark);
+  note.textContent = dark ? 'too dark? switch me back' : 'too bright? switch me off';
+  readColours();
+}
+sw.addEventListener('click', () => {
+  root.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('pfx-theme', root.dataset.theme); } catch (e) {}
+  syncTheme(); if (reduce) frame(performance.now());
+});
+
+syncTheme();
+document.fonts.ready.then(() => {
+  layout();
+  setTimeout(measureChars, 1500);                    // after the letters have blurred in
+  setTimeout(() => decode(document.querySelector('.status [data-decode]')), 900);
+  // Scroll: one Lenis feeding ScrollTrigger on GSAP's ticker, so every layer moves on the same clock.
+  if (!reduce && window.Lenis) {
+    const lenis = new window.Lenis({ lerp: .1 });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(time => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  }
+  gsap.timeline({ scrollTrigger: { trigger: '.stage', start: 'top top', end: 'bottom bottom', scrub: reduce ? true : .6, onUpdate: s => { scr.p = s.progress; if (reduce) frame(performance.now()); } } })
+    .to('.hero', { yPercent: -30, opacity: 0, ease: 'none', duration: .7 }, 0)
+    .to('.bar', { opacity: 0, ease: 'none', duration: .3 }, 0)
+    .to({}, { duration: .3 });
+  if (reduce) return frame(performance.now());
+  gsap.ticker.add(time => frame(time * 1000));
+});
+</script>
+</body>
+</html>
