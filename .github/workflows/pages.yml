@@ -15,7 +15,7 @@ jobs:
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npm run build
-        env: { GH_PAGES: '1', SITE_URL: 'https://zchean1216.github.io/portfolio' }
+        env: { GH_PAGES: '1', SITE_URL: 'https://zchean1216.github.io/portfolio-v3' }
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist }
       - id: d

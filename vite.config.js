@@ -7,7 +7,7 @@ import { defineConfig } from 'vite';
 // public/ so Vite serves and copies it untouched, keeping URLs and the design identical.
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC = path.join(ROOT, 'public');
-// GH_PAGES=1: GitHub Pages preview build, served from /portfolio/ and including the prototype page
+// GH_PAGES=1: GitHub Pages preview build, served from /portfolio-v3/ and including the prototype page
 const GH_PAGES = !!process.env.GH_PAGES;
 const SAVES = { '/__space-layout': 'data/space-layout.json' };
 
@@ -108,6 +108,6 @@ function siteDevTools() {
 export default defineConfig({
   plugins: [siteDevTools()],
   server: { port: 5173, open: false },
-  base: GH_PAGES ? '/portfolio/' : '/',
+  base: GH_PAGES ? '/portfolio-v3/' : '/',
   build: { outDir: 'dist', emptyOutDir: true, rollupOptions: GH_PAGES ? { input: ['index.html', 'proto-hero-v2.html'] } : {} },
 });
